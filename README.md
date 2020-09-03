@@ -14,7 +14,7 @@ Clone the repository, edit package.json and start hacking!
 
 `src/style` contains application-wide stylesheets. 
 
-## Commands
+## Commands
 
 `yarn dev` Runs a development server. 
 
@@ -25,4 +25,4 @@ Clone the repository, edit package.json and start hacking!
 
 ## Notes
 
-When developing SSR apps for the first time, remember that at some point our (P)react app is
+When developing SSR apps for the first time, remember that our client-side code will probably get invoked under a node environment, and won't have access to your standard browser namespace. A workaround is to gate code with `if (typeof window === 'undefined') return;`.
