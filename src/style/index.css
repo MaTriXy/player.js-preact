@@ -1,8 +1,231 @@
-html, body {
-	margin: 0;
-	padding: 0;
+.player-js_root {
+	background: #000;
+	width: 100%;
+	height: 100%;
+	position: relative;
+	min-height: 400px;
 }
 
-* {
+.player-js_video {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+}
 
+.player-js_video > video {
+	width: 100%;
+	height: 100%;
+}
+
+.player-js_transport {
+	position: absolute;
+	bottom: 0;
+	width: 100%;
+	width: calc(100% - 10px);
+	display: flex;
+	flex-direction: column;
+	padding: 0 5px 0px;
+}
+
+.player-js_seek {
+
+}
+
+.player-js_controls {
+	display: flex;
+}
+
+.player-js_left_controls, .player-js_right_controls {
+	display: flex;
+	padding: 0 5px;
+}
+
+.player-js_time {
+	display: flex;
+	flex: 1;
+}
+
+.player-js_transport_button {
+	background: none;
+	border: none;
+	-webkit-appearance: none;
+	cursor: pointer;
+	width: 48px;
+	height: 48px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: #FFF;
+}
+
+.player-js_transport_button svg path {
+	fill: currentColor;
+	stroke: currentColor;
+}
+
+.player-js_volume_slider {
+	display: flex;
+	align-items: center;
+	padding-top: 10px;
+	overflow: hidden;
+	padding-left: 2px;
+	padding-right: 10px;
+	width: 80px;
+}
+
+.player-js_volume_contain {
+	width: 0;
+	overflow: hidden;
+	display: flex;
+	align-items: center;
+	transition: width 0.2s;
+}
+
+.player-js_volume_contain:focus, .player-js_volume_visible, .player-js_volume_contain:hover {
+	width: 80px;
+}
+
+.player-js_seek_hit, .player-js_volume_hit {
+	cursor: pointer;
+	display: flex;
+	width: 100%;
+	height: 16px;
+	position: relative;
+	top: -5px;
+	align-items: center;
+	background: transparent;;
+}
+
+.player-js_seek_hit:hover .player-js_seek {
+	height: 5px;
+}
+
+.player-js_seek, .player-js_volume_base {
+	height: 3px;
+	transition: height 0.1s;
+	width: 100%;
+	width: calc(100% - 10px);
+	margin: 0 5px;
+	position: relative;
+}
+
+.player-js_seek_base, .player-js_volume_base {
+	background: rgba(255,255,255,0.2);
+	width: 100%;
+}
+
+.player-js_seek_base, .player-js_seek_buffered, .player-js_seek_current, .player-js_volume_current {
+	height: 100%;
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+
+.player-js_seek_buffered, .player-js_volume_current {
+	background: rgba(255,255,255,0.4);
+}
+
+.player-js_seek_current {
+	background: #F00;
+	position: relative;
+}
+
+.player-js_seek_scrub, .player-js_volume_scrub {
+	position: absolute;
+	right: 0;
+	top: 50%;
+	margin-top: -6px;
+	margin-right: -6px;
+	height: 12px;
+	width: 12px;
+	transform: scale(0.01);
+	opacity: 0;
+	border-radius: 100%;
+	box-shadow: 0px 0.5px 1px 2px rgba(0, 0, 0, 0.05);
+	background: #f00;
+}
+
+.player-js_volume_scrub {
+	background: #fff;
+	transform: unset !important;
+	opacity: 1;
+}
+
+.player-js_seek_hit > * {
+	pointer-events: none;
+}
+
+.player-js_seek_hit:hover .player-js_seek_scrub, .player-js_seek_hit:active .player-js_seek_scrub {
+	transform: scale(1);
+	opacity: 1;
+}
+
+.player-js_seek_hit:focus .player-js_seek_scrub, .player-js_seek_scrub:focus, .player-js_seek_scrub:focus-within {
+	background: #0F0 !important;
+}
+
+.player-js_transport {
+	transition: opacity 0.05s;
+	opacity: 1;
+}
+
+.player-js_transport_hide {
+	transition: opacity 0.5s;
+	opacity: 0;
+}
+
+
+
+.player-js_transport_contain {
+	background: transparent;
+	width: 100%;
+	height: 100%;
+	position: absolute;
+}
+
+.player-js_seeking .player-js_seek_current {
+	transition: none;
+}
+
+.player-js_transport_controls_gradient {
+	background: linear-gradient(to bottom, rgba(0,0,0,0) 0%,rgba(0,0,0,0.55) 100%);
+	height: 98px;
+	position: absolute;
+	bottom: 0;
+	width: 100%;
+	left: 0;
+}
+
+.player-js_foreground_state_change {
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	width: 40px;
+	height: 40px;
+	margin: -20px 0 0 -20px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 100%;
+	color: #FFF;
+	background: rgba(50, 50, 50, 0.9);
+	opacity: 0;
+}
+
+.player-js_time_units {
+	display: flex;
+	align-items: center;
+	color: #FFF;
+}
+
+.player-js_time_units span {
+	padding: 0 3px;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+	font-size: 10pt;
+}
+
+.mute_btn svg path {
+	stroke: unset !important;
 }

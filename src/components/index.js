@@ -1,5 +1,5 @@
-import App from './app';
+import Player from './player';
 
-export { App }
+export { Player }
 
-export default App 
+export default Player 
