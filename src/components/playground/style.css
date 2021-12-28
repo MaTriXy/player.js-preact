@@ -1,0 +1,23 @@
+html, body {
+	margin: 0;
+	padding: 0;
+}
+
+.main {
+	width: 100vw;
+	height: 100vh;
+}
+
+.player {
+	width: 90vw;
+	margin: 10px auto;
+	height: calc(100vh - 250px);
+	min-height: 400px;
+}
+
+.main textarea {
+	margin: 0 auto;
+	display: block;
+	width: 90vw;
+	height: 200px;
+}

@@ -5,18 +5,6 @@ import protocols from '../../protocols';
 
 import { PlaybackState, PlaybackAction } from '../../constants';
 
-const zDefaultPlaylistItem = {
-	id: 'some_identifier',
-	type: 'video',
-	source: {
-		href: 'https://cdn.index.hm/f/wlkX0zBjZTE2OWY5ZmEzN/39.mp4', // 'https://scdnc.insanityradio.com/dash/dash/insanity/index.mpd',
-		live: false,
-		/* rewind: {
-			enabled: true,
-			duration: 60
-		} */
-	}
-}
 
 const DefaultPlaylistItem = {
 	id: 'some_identifier',
