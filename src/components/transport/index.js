@@ -115,6 +115,10 @@ class VolumeSlider extends React.Component {
 			seeking: false
 		})
 
+		if (document.activeElement.classList.contains('player-js_volume_contain')) {
+			document.activeElement.blur();
+		}
+
 		window.removeEventListener('mouseup', this._onSeekEnd)
 		window.removeEventListener('mousemove', this._onSeekMove)
 	}
@@ -209,6 +213,10 @@ export default class Transport extends React.Component {
 	}
 
 	renderTime = (time) => {
+		if (!Number.isFinite(time)) {
+			return '--:--';
+		}
+
 		let timeStamp = new Date(1000 * (isNaN(time) ? 0 : time)).toISOString().slice(11, 19);
 
 		if (timeStamp.length > 5 && timeStamp.startsWith('00:')) {
@@ -227,6 +235,7 @@ export default class Transport extends React.Component {
 					<div className="player-js_seek">
 						<SeekBar
 							state={ this.props.state }
+							disabled={ this.props.target && this.props.target.source.live && !this.props.target.source.rewind.enable }
 							currentTime={ this.state.currentTime }
 							bufferedTime={ this.state.bufferedTime }
 							totalTime={ this.state.totalTime }
@@ -234,6 +243,7 @@ export default class Transport extends React.Component {
 							onPause={ this.props.onPause }
 							onPlay={ this.props.onPlay }
 							mediaRef={ this.props.mediaRef }
+							rewind={ this.props.target && this.props.target.source.rewind }
 						/>
 					</div>
 
@@ -264,11 +274,16 @@ export default class Transport extends React.Component {
 						</div>
 
 						<div className="player-js_time">
-							<span className="player-js_time_units">
-								<span>{ this.renderTime(this.state.currentTime) }</span>
-								<span> / </span>
-								<span>{ this.renderTime(this.state.totalTime) }</span>
-							</span>
+							{
+								this.props.target && this.props.target.source.live ?
+									<span className="player-js_time_units player-js_time_live"><span>LIVE</span></span>
+								:
+									<span className="player-js_time_units">
+										<span>{ this.renderTime(this.state.currentTime) }</span>
+										<span> / </span>
+										<span>{ this.renderTime(this.state.totalTime) }</span>
+									</span>
+							}
 						</div>
 
 						<div className="player-js_right_controls">
@@ -300,6 +315,10 @@ export default class Transport extends React.Component {
 				</div>
 			</div>
 		)
+	}
+
+	_toggleMute = () => {
+		this.props.onChangeVolume(null);
 	}
 
 	_showVolume = () => {

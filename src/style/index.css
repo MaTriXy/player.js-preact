@@ -229,3 +229,7 @@
 .mute_btn svg path {
 	stroke: unset !important;
 }
+
+.player-js_seek_disabled {
+	pointer-events: none !important;
+}

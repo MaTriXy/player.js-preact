@@ -18,7 +18,7 @@ const PlaybackAction = {
 	PAUSE: 5
 }
 
-const DefaultPlaylistItem = {
+const zDefaultPlaylistItem = {
 	id: 'some_identifier',
 	type: 'video',
 	source: {
@@ -28,6 +28,20 @@ const DefaultPlaylistItem = {
 			enabled: true,
 			duration: 60
 		} */
+	}
+}
+
+const DefaultPlaylistItem = {
+	id: 'some_identifier',
+	type: 'audio',
+	source: {
+		href: 'https://stream.cor.insanityradio.com/insanity320.mp3?' + Date.now(), // 'https://scdnc.insanityradio.com/dash/dash/insanity/index.mpd',
+		live: true,
+		rewind: {
+			enabled: false,
+			tolerance: 2,
+			duration: 30
+		}
 	}
 }
 
@@ -50,6 +64,8 @@ export default class Player extends React.Component {
 
 	constructor (props) {
 		super(props);
+
+		window._player = this;
 	}
 
 	componentDidMount () {
@@ -275,6 +291,7 @@ export default class Player extends React.Component {
 			<Transport
 				state={ this.state.state }
 				action={ this.state.action }
+				target={ this.state.target }
 				ref={ this._setTransportRef }
 				onPlay={ this._play }
 				onPause={ this._pause }
@@ -289,7 +306,20 @@ export default class Player extends React.Component {
 	}
 
 	_onChangeVolume = (volume) => {
-		console.log('sv', volume)
+		let curVolume = this.mediaRef ? this.mediaRef.volume : this.state._volume;
+
+		if (volume === null) {
+			// mute request
+			if (curVolume == 0) {
+				volume = this._lastVolume || 1;
+			} else {
+				this._lastVolume = curVolume;
+				volume = 0;
+			}
+		} else {
+			this._lastVolume = volume;
+		}
+
 		if (this.mediaRef) {
 			this.mediaRef.volume = volume;
 		}
@@ -380,6 +410,6 @@ export default class Player extends React.Component {
 
 Player.defaultProps = {
 	mode: 'video',
-	autoplay: false,
+	autoplay: true,
 	playlist: [DefaultPlaylistItem]
 }
