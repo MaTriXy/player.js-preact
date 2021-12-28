@@ -1,10 +1,14 @@
 {
-  "name": "legs",
+  "name": "player.js",
   "version": "0.0.1",
-  "license": "MIT",
+  "license": "UNLICENSED",
+  "main": "dist/index.js",
+  "umd:main": "dist/index.umd.js",
+  "module": "dist/index.m.js",
+  "source": "components/player/index.js",
   "scripts": {
     "build": "preact build --sw=false",
-    "serve": "preact build --sw=false && node -r esm index.js",
+    "dist": "microbundle --entry src/components/player/index.js",
     "dev": "preact watch",
     "lint": "eslint src",
     "test": "jest"
@@ -25,6 +29,7 @@
     "eslint-config-preact": "^1.1.0",
     "jest": "^24.9.0",
     "jest-preset-preact": "^1.0.0",
+    "microbundle": "^0.14.2",
     "preact-cli": "^3.0.0"
   },
   "dependencies": {

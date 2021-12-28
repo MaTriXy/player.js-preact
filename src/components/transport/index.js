@@ -1,25 +1,12 @@
 import React from 'react';
 import Lottie from "lottie-react";
 import SeekBar from './seek-bar';
+import { PlaybackState, PlaybackAction } from '../../constants';
 
-import playPause from './playPause.json';
-import mute from './mute.json';
-import fullscreen from './fullscreen.json';
+import playPause from './icons/playPause.json';
+import mute from './icons/mute.json';
+import fullscreen from './icons/fullscreen.json';
 
-const PlaybackState = {
-	NONE: 0,
-	LOADING: 1,
-	ERROR: 2,
-	BUFFERING: 3,
-	PLAYING: 4,
-	PAUSED: 5
-}
-
-const PlaybackAction = {
-	NONE: 0,
-	PLAY: 4,
-	PAUSE: 5
-}
 
 const _dontPropagateUp = (e) => {
 	e.stopPropagation();
