@@ -34,4 +34,7 @@ player.js creates a custom tag called &lt;video-player /&gt;.
     
     <video-player autoplay playlist='[{"id":"555","type":"video","source":{"href":"https://scdnc.insanityradio.com/manifest/hls/video.m3u8","loader":"hls","live":true,"rewind":{"enable":true,"duration":600}}}]'></video-player>
 
+## Demo
+
+https://index.hm/dev/player/index.html
 
