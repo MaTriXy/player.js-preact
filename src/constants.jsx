@@ -14,7 +14,8 @@ const PlaybackAction = {
 	FORWARD_5: 6,
 	REWIND_5: 7,
 	VOLUME_UP: 8,
-	VOLUME_DOWN: 9
+	VOLUME_DOWN: 9,
+	VOLUME_MUTE: 10
 }
 
 export { PlaybackState, PlaybackAction }

@@ -3,10 +3,12 @@ import Lottie from "lottie-react";
 import SeekBar from './seek-bar';
 import { PlaybackState, PlaybackAction } from '../../constants';
 
+import HeightAsProp from './height-as-prop';
+
 import playPause from './icons/playPause.json';
 import mute from './icons/mute.json';
 import fullscreen from './icons/fullscreen.json';
-
+import settings from './icons/settings.json';
 
 const _dontPropagateUp = (e) => {
 	e.stopPropagation();
@@ -35,6 +37,7 @@ class StatefulButton extends React.Component {
 
 		if (nextProps.checked != this.props.checked) {
 			if (this._lottieRef.current) {
+
 				let lottie = this._lottieRef.current;
 				let checked = nextProps.checked;
 				lottie.setSpeed(this.props.speed || 1);
@@ -51,7 +54,7 @@ class StatefulButton extends React.Component {
 		// lottie is slow as shit to mount..
 
 		if (this._lottieRef.current) {
-			this._lottieRef.current.goToAndPlay(this.props.checked ? this.props.onState : 1, true);
+			this._lottieRef.current.goToAndStop(this.props.checked ? this.props.onState : this.props.offState, true);
 		}
 	}
 
@@ -67,13 +70,17 @@ class StatefulButton extends React.Component {
 					autoplay={ false }
 					loop={ false }
 					lottieRef={ this._lottieRef }
-					initialSegment={ [1, this.props.onState] }
+					initialSegment={ [this.props.offState, this.props.onState] }
 					style={{ height: '24px', fill: 'currentColor' }}
 					animationData={ this.props.animationData }
 				/>
 			</button>
 		)
 	}
+}
+
+StatefulButton.defaultProps = {
+	offState: 1
 }
 
 class VolumeSlider extends React.Component {
@@ -179,6 +186,8 @@ export default class Transport extends React.Component {
 							? { left: '85%' } : {}
 				);
 
+				this._showTransport();
+
 				this._actionRef.animate([
 					{ transform: 'scale(0.5)', opacity: 0, ...pos },
 					{ transform: 'scale(1)', opacity: 0.7, ...pos },
@@ -246,12 +255,12 @@ export default class Transport extends React.Component {
 			<div className="player-js_transport_contain" onMouseMove={ this._showAndResetTimer } onMouseLeave={ this._resetTimerFast } onClick={ this._playPause }>
 				<div className="player-js_transport_controls_gradient" onClick={ _dontPropagateUp }>
 				</div>
-				<div className={ "player-js_transport" + (this.state.hidden ? " player-js_transport_hide" : "") } onClick={ _dontPropagateUp }>
+				<div className={ "player-js_transport" + (this.state.hidden && !this.state.settings ? " player-js_transport_hide" : "") } onClick={ _dontPropagateUp }>
 					<div className="player-js_seek">
 						<SeekBar
 							state={ this.props.state }
-							handler={ this.props.handler }
-							disabled={ this.props.target && this.props.target.source.live && !this.props.target.source.rewind.enable }
+							driver={ this.props.driver }
+							disabled={ this.props.target && this.props.target.source.live && (!this.props.target.source.rewind || !this.props.target.source.rewind.enable) }
 							currentTime={ this.state.currentTime }
 							bufferedTime={ this.state.bufferedTime }
 							totalTime={ this.state.totalTime }
@@ -273,7 +282,7 @@ export default class Transport extends React.Component {
 								onClick={ this._playPause }
 								checked={ this.getPlayIconState() } />
 
-							<StatefulButton
+							{ /* <StatefulButton
 								title="Mute"
 								animationData={ mute }
 								className="mute_btn"
@@ -282,7 +291,26 @@ export default class Transport extends React.Component {
 								onClick={ this._toggleMute }
 								onMouseMove={ this._showVolume }
 								onMouseLeave={ this._hideVolume }
-								checked={ this.getPlayIconState() } />
+								checked={ this.props.volume == 0 } /> */ }
+
+							<button
+								className={ "player-js_transport_button mute_btn" } 
+								title="Mute"
+								onClick={ this._toggleMute }
+								onMouseMove={ this._showVolume }
+								onMouseLeave={ this._hideVolume }
+							>
+								{
+									this.props.volume > 0.5 ?
+										/*<svg key="s" fill="currentColor" xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 24 24" width="24px" height="24px"><path d="M 11 3 L 5 9 L 3 9 C 1.895 9 1 9.895 1 11 L 1 13 C 1 14.105 1.895 15 3 15 L 5 15 L 11 21 L 11 3 z M 19.484375 3.515625 L 18.070312 4.9296875 C 21.984175 8.8435492 21.984042 15.157495 18.070312 19.070312 L 19.484375 20.484375 C 24.162647 15.807192 24.162513 8.1937633 19.484375 3.515625 z M 16.65625 6.34375 L 15.242188 7.7578125 C 17.594098 10.109723 17.593888 13.891346 15.242188 16.242188 L 16.65625 17.65625 C 19.772549 14.541091 19.772339 9.4598394 16.65625 6.34375 z M 13.828125 9.171875 L 12.414062 10.585938 C 13.204152 11.376027 13.204152 12.623974 12.414062 13.414062 L 13.828125 14.830078 C 15.382035 13.276168 15.382035 10.725785 13.828125 9.171875 z"/></svg>*/
+										<svg height="24px" width="24px" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><defs><clipPath id="c"><rect width="24" height="24"/></clipPath><filter id="a" x="0%" y="0%" width="100%" height="100%"><feComponentTransfer in="SourceGraphic"><feFuncA tableValues="1.0 0.0" type="table"/></feComponentTransfer></filter><mask id="b" mask-type="alpha"><g filter="url(#a)"><rect width="24" height="24" opacity="0"/><g transform="translate(-17.512 -17.528)" display="none"><g transform="translate(12.707 11.293)"><path d="m-10.512-10.512 21.024 21.024" fill-opacity="0" stroke="#ffd110" stroke-miterlimit="10" stroke-width="3.9"/></g></g></g></mask></defs><g clip-path="url(#c)"><g display="block"><g transform="translate(12 12)"><path d="m0 0" fill-opacity="0" stroke="#000" stroke-miterlimit="10" stroke-width="2"/></g></g><g display="block" mask="url(#b)"><g><g transform="translate(12 12)"><path d="m-6-3h-4v6h4l6 6v-18l-6 6zm8-5.9v2c3.4 0.5 6 3.4 6 6.9s-2.6 6.4-6 6.9v2c4.5-0.5 8-4.3 8-8.9s-3.5-8.4-8-8.9z"/></g><g transform="translate(16 12)"><path d="m2 0c0-2.4-1.7-4.4-4-4.9v2.1c1.2 0.4 2 1.5 2 2.8s-0.8 2.4-2 2.8v2.1c2.3-0.5 4-2.5 4-4.9z"/></g><g transform="translate(18 12)" opacity="0"><path d="m-4-8.9v2c3.4 0.5 6 3.4 6 6.9s-2.6 6.4-6 6.9v2c4.5-0.5 8-4.3 8-8.9s-3.5-8.4-8-8.9z"/></g></g></g></g></svg>
+									: this.props.volume > 0 ?
+										<svg key="s" fill="currentColor" xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 24 24" width="24px" height="24px"><path d="M 12 3 L 6 9 L 2 9 L 2 15 L 6 15 L 12 21 Z M 14 8.09375 L 14 15.8125 C 15.699219 15.414063 17 13.898438 17 12 C 17 10.101563 15.699219 8.59375 14 8.09375 Z"/></svg>
+									: 
+										<svg key="s" fill="currentColor" xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 24 24" width="24px" height="24px">    <path d="M 12 3 L 6 9 L 2 9 L 2 15 L 6 15 L 12 21 L 12 3 z M 15.707031 8.2929688 L 14.292969 9.7070312 L 16.585938 12 L 14.292969 14.292969 L 15.707031 15.707031 L 18 13.414062 L 20.292969 15.707031 L 21.707031 14.292969 L 19.414062 12 L 21.707031 9.7070312 L 20.292969 8.2929688 L 18 10.585938 L 15.707031 8.2929688 z"/></svg>
+								}
+							</button>
+
 
 							<div className={ "player-js_volume_contain" + (this.state.volume ? " player-js_volume_visible" : "") } tabIndex={ 0 }>
 								<VolumeSlider volume={ this.props.volume } onChange={ this.props.onChangeVolume } />
@@ -302,10 +330,23 @@ export default class Transport extends React.Component {
 							}
 						</div>
 
+						<HeightAsProp as="div" componentRef={ this._setSettingsRef } className={ "player-js_settings_overlay" + (this.state.settings ? " player-js_settings_open" : "") } tabIndex={ 0 } onBlur={ this._hideSettings }>
+							<div className="player-js_settings_content">
+								{
+									this.renderSettings()
+								}
+							</div>
+						</HeightAsProp>
+
 						<div className="player-js_right_controls">
-							{ /* <button className="player-js_transport_button" onClick={ this.props.onFullScreen }>
-								<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20px" height="20px"><path d="M 3 3 L 3 9 L 5 9 L 5 5 L 9 5 L 9 3 L 3 3 z M 15 3 L 15 5 L 19 5 L 19 9 L 21 9 L 21 3 L 15 3 z M 3 15 L 3 21 L 9 21 L 9 19 L 5 19 L 5 15 L 3 15 z M 19 15 L 19 19 L 15 19 L 15 21 L 21 21 L 21 15 L 19 15 z"/></svg>
-							</button> */ }
+							<StatefulButton
+								title="Settings"
+								animationData={ settings }
+								onState={ 13 }
+								offState={ 9 }
+								speed={ 1 }
+								onClick={ this._toggleSettings }
+								checked={ this.state.settings } />
 
 							<StatefulButton
 								title="Full Screen"
@@ -327,6 +368,26 @@ export default class Transport extends React.Component {
 				</div>
 			</div>
 		)
+	}
+
+	_setSettingsRef = (ref) => {
+		this._settingsRef = ref;
+	}
+
+	_hideSettings = () => {
+		this.setState({
+			settings: false
+		})
+	}
+
+	_toggleSettings = () => {
+		this.setState({
+			settings: !this.state.settings
+		}, () => {
+			if (this.state.settings && this._settingsRef) {
+				this._settingsRef.focus();
+			}
+		})
 	}
 
 	_toggleMute = () => {
@@ -365,6 +426,67 @@ export default class Transport extends React.Component {
 		}
 	}
 
+	renderSettings () {
+		return (
+			<div className={ "player-js_settings_contain resizes " + (typeof this.state.settings == 'string' ? this.state.settings : '') }>
+				<div className="player-js_settings_options">
+					<div className="player-js_settings_option" onClick={ this._openSettings.bind(this, 'index_1') }>
+						<span>
+							<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 24 24" width="16px" height="16px"><path d="M 9 2 L 9 4 L 2 4 L 2 6 L 9 6 L 9 8 L 12 8 L 12 2 L 9 2 z M 14 4 L 14 6 L 22 6 L 22 4 L 14 4 z M 14 9 L 14 11 L 2 11 L 2 13 L 14 13 L 14 15 L 17 15 L 17 9 L 14 9 z M 19 11 L 19 13 L 22 13 L 22 11 L 19 11 z M 4 16 L 4 18 L 2 18 L 2 20 L 4 20 L 4 22 L 7 22 L 7 16 L 4 16 z M 9 18 L 9 20 L 22 20 L 22 18 L 9 18 z"/></svg>
+						</span>
+						<div>
+							Quality
+						</div>
+						<div>
+							{ this.props.driver && (this.props.driver.adaptiveSet || {}).text || '-' }
+						</div>
+					</div>
+				</div>
+
+				<div className="player-js_settings_bitrate">
+					{ this.renderLevels() }
+				</div>
+			</div>
+		)
+	}
+
+	_openSettings = (settings) => {
+		this.setState({
+			settings
+		})
+	}
+
+	renderLevels () {
+		let levels = this.props.driver && this.props.driver.adaptiveSets;
+
+		if (!levels) {
+			return null;
+		}
+
+		return <div style={{ width: '125px' }}>
+			<div className="player-js_bitrate_level" onClick={ this._openSettings.bind(this, true) } style={{ marginBottom: '10px' }}>
+				<b>Quality</b>
+			</div>
+			{
+				levels.map(level => 
+					<div className="player-js_bitrate_level" onClick={ this._setBitrate.bind(this, level) }>
+						{ level.text }
+					</div>
+				)
+			}
+		</div>;
+	}
+
+	_setBitrate = (level) => {
+		console.log('req bitrate change', level);
+
+		if (this.props.driver) {
+			this.props.driver.adaptiveSet = level;
+		}
+
+		this._hideSettings();
+	}
+
 	renderAction () {
 		switch (this.props.action) {
 			case PlaybackAction.PLAY:
@@ -384,6 +506,10 @@ export default class Transport extends React.Component {
 
 			case PlaybackAction.VOLUME_DOWN:
 				return <svg key="s" fill="currentColor" xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 24 24" width="24px" height="24px"><path d="M 12 3 L 6 9 L 2 9 L 2 15 L 6 15 L 12 21 Z M 14 8.09375 L 14 15.8125 C 15.699219 15.414063 17 13.898438 17 12 C 17 10.101563 15.699219 8.59375 14 8.09375 Z"/></svg>;
+
+			case PlaybackAction.VOLUME_MUTE:
+				return <svg key="s" fill="currentColor" xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 24 24" width="24px" height="24px">    <path d="M 12 3 L 6 9 L 2 9 L 2 15 L 6 15 L 12 21 L 12 3 z M 15.707031 8.2929688 L 14.292969 9.7070312 L 16.585938 12 L 14.292969 14.292969 L 15.707031 15.707031 L 18 13.414062 L 20.292969 15.707031 L 21.707031 14.292969 L 19.414062 12 L 21.707031 9.7070312 L 20.292969 8.2929688 L 18 10.585938 L 15.707031 8.2929688 z"/></svg>;
+
 		}
 	}
 

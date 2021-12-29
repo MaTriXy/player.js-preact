@@ -95,6 +95,10 @@ export default class Player extends React.Component {
 			this.mediaRef.load();
 		}
 
+		if (this.state.driver) {
+			this.state.driver.destroy();
+		}
+
 		await this.setPlaybackState(PlaybackState.LOADING);
 
 		let { target } = this.state;
@@ -109,22 +113,22 @@ export default class Player extends React.Component {
 
 			console.log('got data response', mediaFile)
 
-			let handler = protocols.find(mediaFile, target, this.mediaRef);
+			let driver = protocols.find(mediaFile, target, this.mediaRef);
 
-			console.log('got video handler', handler)
+			console.log('got video driver', driver)
 
-			if (handler.url && this.mediaRef.src != handler.url) {
-				this.mediaRef.src = handler.url;
+			if (driver.url && this.mediaRef.src != driver.url) {
+				this.mediaRef.src = driver.url;
 			}
 
-			if (handler.loading) {
-				await handler.loading;
+			if (driver.loading) {
+				await driver.loading;
 			}
 
-			console.log('handler loaded')
+			console.log('driver loaded')
 
 			this.setState({
-				handler
+				driver
 			}, () => {
 				/* if () {
 					this.play(false);
@@ -132,7 +136,7 @@ export default class Player extends React.Component {
 
 				if (this.props.autoplay && this.state.action != PlaybackAction.PAUSE) {
 
-					if (!this.state.handler) {
+					if (!this.state.driver) {
 						this._playWhenReady = true;
 						return;
 					}
@@ -314,7 +318,7 @@ export default class Player extends React.Component {
 			<Transport
 				state={ this.state.state }
 				action={ this.state.action }
-				handler={ this.state.handler }
+				driver={ this.state.driver }
 				target={ this.state.target }
 				ref={ this._setTransportRef }
 				onPlay={ this._play }
@@ -485,6 +489,7 @@ export default class Player extends React.Component {
 
 			case 77:
 				this._onChangeVolume(null);
+				this.setPlaybackAction(this.mediaRef.volume ? PlaybackAction.VOLUME_UP : PlaybackAction.VOLUME_MUTE);
 				return event.preventDefault();
 
 

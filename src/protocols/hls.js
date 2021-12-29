@@ -42,6 +42,10 @@ export default class HLSProtocol {
 		console.log('hls', this.hls)
 	}
 
+	destroy () {
+		this.hls.destroy();
+	}
+
 	get tolerance () {
 		let currentFrag = this.hls.streamController.fragPlaying;
 
@@ -58,6 +62,26 @@ export default class HLSProtocol {
 		return this.hls.media.currentTime;
 	}
 
+	get adaptiveSets () {
+		return this.hls.levels.map(this._mapLevel).sort((a, b) => b.key - a.key)
+	}
+
+	get adaptiveSet () {
+		return this._mapLevel(this.hls.levels[this.hls.currentLevel]);
+	}
+
+	set adaptiveSet (value) {
+		if (typeof value == 'object') {
+			if (value.key) {
+				let level = this.hls.levels.findIndex(l => l.bitrate == value.key)
+
+				if (level >= 0) {
+					this.hls.currentLevel = level;
+				}
+			}
+		}
+	}
+
 	get delay () {
 		return this.hls.targetLatency;
 	}
@@ -69,6 +93,11 @@ export default class HLSProtocol {
 	set src (url) {
 		this.url = url;
 	}
+
+	_mapLevel = level => (level ? {
+		key: level.bitrate,
+		text: (level.height ? level.height + 'p' : (level.bitrate / 1024 / 1024).toFixed(1) + ' Mbps')
+	} : { key: 0, text: '-' })
 }
 
 Protocols.register({

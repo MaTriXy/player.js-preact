@@ -21,3 +21,9 @@ html, body {
 	width: 90vw;
 	height: 200px;
 }
+
+.main select {
+	width: 90vw;
+	margin: 0 auto;
+	display: block;
+}

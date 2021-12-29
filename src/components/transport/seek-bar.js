@@ -27,7 +27,7 @@ export default class SeekBar extends React.Component {
 		let currentTime = this.props.mediaRef.currentTime;
 
 		if (this.props.rewind) {
-			let liveTotalTime = this.props.handler && this.props.handler.liveTotalTime;
+			let liveTotalTime = this.props.driver && this.props.driver.liveTotalTime;
 
 			totalTime = this.props.rewind.duration;
 
@@ -56,7 +56,7 @@ export default class SeekBar extends React.Component {
 		let totalTime = this.props.totalTime;
 
 		if (this.props.rewind) {
-			let liveTotalTime = this.props.handler && this.props.handler.liveTotalTime;
+			let liveTotalTime = this.props.driver && this.props.driver.liveTotalTime;
 
 			totalTime = this.props.rewind.duration;
 
@@ -74,6 +74,9 @@ export default class SeekBar extends React.Component {
 					</div>
 
 					<div className="player-js_seek_buffered" style={{ width: (100 * (bufferedTime / totalTime)) + '%' }}>
+					</div>
+
+					<div className="player-js_seek_scrubbar" ref={ this._setSeekRef } style={{ width: '0%' }}>
 					</div>
 
 					<div className="player-js_seek_current" ref={ this._setCurrentRef } style={{ width: (100 * (currentTime / totalTime)) + '%' }}>
@@ -102,6 +105,10 @@ export default class SeekBar extends React.Component {
 		this._currentRef = ref;
 	}
 
+	_setSeekRef = (ref) => {
+		this._seekRef = ref;
+	}
+
 	_onSeekStart = (e) => {
 		e.preventDefault()
 
@@ -128,7 +135,7 @@ export default class SeekBar extends React.Component {
 		if (this.props.rewind) {
 			let tolerance = 5;
 
-			return this.props.handler.liveTotalTime - tolerance - (this.props.rewind.duration - (x / width * this.props.rewind.duration));
+			return this.props.driver.liveTotalTime - tolerance - (this.props.rewind.duration - (x / width * this.props.rewind.duration));
 		}
 
 		return x / width * this.props.totalTime;
@@ -167,12 +174,14 @@ export default class SeekBar extends React.Component {
 		let rect = this._hitArea.getBoundingClientRect()
 		this._labelRef.style.left = (e.pageX - rect.left - 34) + 'px';
 
+		this._seekRef.style.width = (e.pageX - rect.left - 5) + 'px';
+
 		requestAnimationFrame(() => {
 			let selectedTime = this._getTimeFromClick(e) + 5;
 			let negate = false;
 
-			if (this.props.rewind.duration) {
-				selectedTime = Math.floor(this.props.handler.liveTotalTime - selectedTime);
+			if (this.props.rewind && this.props.rewind.duration) {
+				selectedTime = Math.floor(this.props.driver.liveTotalTime - selectedTime);
 				negate = selectedTime > 0;
 			}
 
