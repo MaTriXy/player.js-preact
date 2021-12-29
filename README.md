@@ -27,7 +27,7 @@ Then, simply require
 
 ### Vanilla HTML/JS
 
-player.js creates a custom tag called <video-player />.
+player.js creates a custom tag called &lt;video-player /&gt;.
 
     <script type="text/javascript" src="player.js/dist/index.umd.js"></script>
     ...
