@@ -2,4 +2,6 @@ node_modules
 build
 dist
 yarn.lock
+yarn*log
 size-plugin.json
+.DS_Store
