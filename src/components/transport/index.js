@@ -15,7 +15,18 @@ const _dontPropagateUp = (e) => {
 class StatefulButton extends React.Component {
 	constructor (props) {
 		super(props)
-		this._lottieRef = React.createRef();
+
+		let _this = this;
+
+		this._lottieRef = {
+			get current() {
+				return this._current
+			},
+			set current(value) {
+				this._current = value
+				_this.componentDidMount();
+			}
+		}
 	}
 
 	// hack! for some reason lottie doesn't like being re-rendered
@@ -36,10 +47,19 @@ class StatefulButton extends React.Component {
 		return false;
 	}
 
+	componentDidMount () {
+		// lottie is slow as shit to mount..
+
+		if (this._lottieRef.current) {
+			this._lottieRef.current.goToAndPlay(this.props.checked ? this.props.onState : 1, true);
+		}
+	}
+
 	nativeProps = ['onClick', 'onMouseMove', 'onMouseDown', 'onMouseUp', 'onMouseLeave'];
 
 	render () {
 		let nativeProps = Object.fromEntries(Object.entries(this.props).filter(([k, v]) => this.nativeProps.includes(k)))
+
 		return (
 			<button {...nativeProps} className={ "player-js_transport_button " + (this.props.className || '') } key={ 0 }>
 				<Lottie
@@ -160,11 +180,12 @@ export default class Transport extends React.Component {
 				);
 
 				this._actionRef.animate([
-					{ transform: 'scale(0.01)', opacity: 0, ...pos },
+					{ transform: 'scale(0.5)', opacity: 0, ...pos },
 					{ transform: 'scale(1)', opacity: 0.7, ...pos },
-					{ transform: 'scale(2)', opacity: 0, ...pos}
+					{ transform: 'scale(1.5)', opacity: 0.7, ...pos },
+					{ transform: 'scale(2.0)', opacity: 0, ...pos}
 				], {
-					duration: 500,
+					duration: 400,
 					iterations: 1
 				})
 			}
@@ -329,6 +350,10 @@ export default class Transport extends React.Component {
 	}
 
 	getPlayIconState () {
+		if (this.props.state == PlaybackState.LOADING && !this.props.action) {
+			return true;
+		}
+
 		switch (this.props.state) {
 			case PlaybackState.PLAYING:
 			case PlaybackState.BUFFERING:

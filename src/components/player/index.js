@@ -30,7 +30,6 @@ const DefaultPlaylistItem = {
  * @prop theme A custom theme for transport controls
  */
 
-
 export default class Player extends React.Component {
 	state = {
 		action: PlaybackAction.NONE,
@@ -118,8 +117,28 @@ export default class Player extends React.Component {
 				this.mediaRef.src = handler.url;
 			}
 
+			if (handler.loading) {
+				await handler.loading;
+			}
+
+			console.log('handler loaded')
+
 			this.setState({
 				handler
+			}, () => {
+				/* if () {
+					this.play(false);
+				} */
+
+				if (this.props.autoplay && this.state.action != PlaybackAction.PAUSE) {
+
+					if (!this.state.handler) {
+						this._playWhenReady = true;
+						return;
+					}
+
+					this.play(false)
+				}
 			})
 
 		}
@@ -168,15 +187,14 @@ export default class Player extends React.Component {
 	dispatch (type, nativeEvent, props = {}) {
 		switch (type) {
 			case 'buffering': {
+				console.log('buffering')
 				this.setPlaybackState(PlaybackState.BUFFERING, nativeEvent, props)
 				break;
 			}
 			case 'canplay': {
+				console.log('canplay')
 				this.setPlaybackState(PlaybackState.PAUSED, nativeEvent, props)
 
-				if (this.props.autoplay && this.state.action != PlaybackAction.PAUSE) {
-					this.play(false)
-				}
 
 				this._onTimeUpdate(nativeEvent);
 
@@ -187,6 +205,7 @@ export default class Player extends React.Component {
 				break;
 			}
 			case 'loadstart': {
+				console.log('loadstart')
 				this.setPlaybackState(PlaybackState.LOADING, nativeEvent, props);
 
 				this._onTimeUpdate(nativeEvent);
@@ -427,7 +446,9 @@ export default class Player extends React.Component {
 	_seek = this.seek.bind(this);
 
 	_handleKeyPress = (event) => {
-		if (!this._rootRef.contains(document.activeElement)) {
+		let _document = this.props.document || window.document;
+
+		if (!this._rootRef.contains(_document.activeElement)) {
 			return;
 		}
 
@@ -457,6 +478,15 @@ export default class Player extends React.Component {
 				this._onChangeVolume((this.mediaRef ? this.mediaRef.volume : this.state._volume) - 0.1);
 				this.setPlaybackAction(PlaybackAction.VOLUME_DOWN);
 				return event.preventDefault();
+
+			case 70:
+				this._fullScreen();
+				return event.preventDefault();
+
+			case 77:
+				this._onChangeVolume(null);
+				return event.preventDefault();
+
 
 			default:
 				break;

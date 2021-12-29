@@ -8,7 +8,7 @@
   "source": "components/player/index.js",
   "scripts": {
     "build": "preact build --sw=false --no-prerender",
-    "dist": "microbundle --entry src/components/player/index.js",
+    "dist": "microbundle --entry src/components/module.js --alias react=preact/compat --jsx React.createElement",
     "dev": "preact watch",
     "lint": "eslint src",
     "test": "jest"
@@ -30,14 +30,14 @@
     "jest": "^24.9.0",
     "jest-preset-preact": "^1.0.0",
     "microbundle": "^0.14.2",
-    "preact-cli": "^3.0.0"
+    "hls.js": "^1.1.2",
+    "lottie-react": "^2.1.0",
+    "preact-cli": "^3.0.0",
+    "preact": "^10.3.2"
   },
   "dependencies": {
     "@fluentui/react": "^7.134.1",
-    "hls.js": "^1.1.2",
-    "lottie-react": "^2.1.0",
     "mp4box": "^0.4.9",
-    "preact": "^10.3.2",
     "preact-render-to-string": "^5.1.4",
     "preact-router": "^3.2.1",
     "run-middleware": "^0.9.10"

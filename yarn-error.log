@@ -1,5 +1,5 @@
 Arguments: 
-  /usr/local/Cellar/node@14/14.17.0/bin/node /usr/local/bin/yarn add mp4box.js
+  /usr/local/Cellar/node@14/14.17.0/bin/node /usr/local/bin/yarn
 
 PATH: 
   /usr/local/opt/mysql-client/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/bin:/usr/sbin:/sbin:/Library/TeX/texbin:/opt/X11/bin:/Library/Apple/usr/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands
@@ -14,17 +14,12 @@ Platform:
   darwin x64
 
 Trace: 
-  Error: https://registry.yarnpkg.com/mp4box.js: Not found
-      at Request.params.callback [as _callback] (/usr/local/lib/node_modules/yarn/lib/cli.js:66926:18)
-      at Request.self.callback (/usr/local/lib/node_modules/yarn/lib/cli.js:140564:22)
-      at Request.emit (events.js:376:20)
-      at Request.<anonymous> (/usr/local/lib/node_modules/yarn/lib/cli.js:141536:10)
-      at Request.emit (events.js:376:20)
-      at IncomingMessage.<anonymous> (/usr/local/lib/node_modules/yarn/lib/cli.js:141458:12)
-      at Object.onceWrapper (events.js:482:28)
-      at IncomingMessage.emit (events.js:388:22)
-      at endReadableNT (internal/streams/readable.js:1336:12)
-      at processTicksAndRejections (internal/process/task_queues.js:82:21)
+  SyntaxError: /Users/jamiewoods/Documents/Code/player.js/package.json: Unexpected string in JSON at position 942
+      at JSON.parse (<anonymous>)
+      at /usr/local/lib/node_modules/yarn/lib/cli.js:1625:59
+      at Generator.next (<anonymous>)
+      at step (/usr/local/lib/node_modules/yarn/lib/cli.js:304:30)
+      at /usr/local/lib/node_modules/yarn/lib/cli.js:315:13
 
 npm manifest: 
   {
@@ -36,7 +31,7 @@ npm manifest:
     "module": "dist/index.m.js",
     "source": "components/player/index.js",
     "scripts": {
-      "build": "preact build --sw=false",
+      "build": "preact build --sw=false --no-prerender",
       "dist": "microbundle --entry src/components/player/index.js",
       "dev": "preact watch",
       "lint": "eslint src",
@@ -59,12 +54,14 @@ npm manifest:
       "jest": "^24.9.0",
       "jest-preset-preact": "^1.0.0",
       "microbundle": "^0.14.2",
+      "hls.js": "^1.1.2",
+      "lottie-react": "^2.1.0",
       "preact-cli": "^3.0.0"
+      "preact": "^10.3.2",
     },
     "dependencies": {
       "@fluentui/react": "^7.134.1",
-      "lottie-react": "^2.1.0",
-      "preact": "^10.3.2",
+      "mp4box": "^0.4.9",
       "preact-render-to-string": "^5.1.4",
       "preact-router": "^3.2.1",
       "run-middleware": "^0.9.10"
@@ -6365,6 +6362,11 @@ Lockfile:
     resolved "https://registry.yarnpkg.com/hex-color-regex/-/hex-color-regex-1.1.0.tgz#4c06fccb4602fe2602b3c93df82d7e7dbf1a8a8e"
     integrity sha512-l9sfDFsuqtOqKDsQdqrMRk0U85RZc0RtOR9yPI7mRVOa4FsR/BVnZ0shmQRM96Ji99kYZP/7hn1cedc1+ApsTQ==
   
+  hls.js@^1.1.2:
+    version "1.1.2"
+    resolved "https://registry.yarnpkg.com/hls.js/-/hls.js-1.1.2.tgz#71691e11928e54ead9696bc64b88c1b9914c394d"
+    integrity sha512-ujditC4vvBmZd00RRNfNPLgFVlqEeUX4sAFv5lGhBHuql8iAZodOdlZTD3em/1zo7vyjQp12up/lCVqQk8dvxA==
+  
   hmac-drbg@^1.0.0:
     version "1.0.1"
     resolved "https://registry.yarnpkg.com/hmac-drbg/-/hmac-drbg-1.0.1.tgz#d2745701025a6c775a6c545793ed502fc0c649a1"
@@ -8552,6 +8554,11 @@ Lockfile:
       mkdirp "^0.5.1"
       rimraf "^2.5.4"
       run-queue "^1.0.3"
+  
+  mp4box@^0.4.9:
+    version "0.4.9"
+    resolved "https://registry.yarnpkg.com/mp4box/-/mp4box-0.4.9.tgz#b8e59be72053417bb68704b14ac7afff9e962a19"
+    integrity sha512-APZb4ZaCBBXdyxA9nXF5lVb/xc2OPRWbnxwlHOn7tXxiBVchpLUl+nZMF52MLLv0oESnZBSy5qnDj9sRE9LCoQ==
   
   mri@^1.1.0:
     version "1.1.6"

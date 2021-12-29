@@ -56,7 +56,7 @@ export default class Playground extends React.Component {
 				<div className={ style.player }>
 					<Player 
 						mode="video"
-						autoplay
+						autoplay={ true }
 						playlist={ this.state.playlist }
 					/>
 				</div>

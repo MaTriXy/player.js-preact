@@ -2,7 +2,7 @@ import Protocols from './protocols';
 import HLSjs from 'hls.js';
 
 export default class HLSProtocol {
-	static NAME = 'mse';
+	static NAME = 'hls';
 
 	constructor (fetchResponse, playlistItem, media) {
 		this.hls = new HLSjs();
@@ -13,6 +13,31 @@ export default class HLSProtocol {
 
 		this.hls.attachMedia(media)
 		this.url = media.src;
+
+		this.loading = new Promise((resolve) => {
+			this.loading = null;
+
+			let handler = async () => {
+				// if (this.hls.media.readyState < 2) {
+					// console.log('nope')
+					// this.hls.once(HLSjs.Events.BUFFER_APPENDED, handler)
+				// } else {
+
+					try {
+						await this.hls.media.play()
+						await this.hls.media.pause()
+					} catch (e) {
+
+					}
+
+					setTimeout(() => resolve(), 10);
+				// }
+			}
+
+			this.hls.once(HLSjs.Events.BUFFER_APPENDED, handler)
+
+			// resolve();
+		})
 
 		console.log('hls', this.hls)
 	}

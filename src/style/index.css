@@ -33,10 +33,6 @@
 	padding: 0 5px 0px;
 }
 
-.player-js_seek {
-
-}
-
 .player-js_controls {
 	display: flex;
 }
@@ -175,11 +171,10 @@
 	opacity: 1;
 }
 
-.player-js_transport_hide {
+.player-js_transport_hide:not(:hover) {
 	transition: opacity 0.5s;
 	opacity: 0;
 }
-
 
 
 .player-js_transport_contain {
