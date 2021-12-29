@@ -152,10 +152,17 @@ export default class Transport extends React.Component {
 
 		if (prevProps.action != this.props.action && this.props.action) {
 			if (this._actionRef) {
+				let pos = (
+					this.props.action == PlaybackAction.REWIND_5
+						? { left: '15%' }
+						: this.props.action == PlaybackAction.FORWARD_5
+							? { left: '85%' } : {}
+				);
+
 				this._actionRef.animate([
-					{ transform: 'scale(0.01)', opacity: 0 },
-					{ transform: 'scale(1)', opacity: 0.7 },
-					{ transform: 'scale(2)', opacity: 0}
+					{ transform: 'scale(0.01)', opacity: 0, ...pos },
+					{ transform: 'scale(1)', opacity: 0.7, ...pos },
+					{ transform: 'scale(2)', opacity: 0, ...pos}
 				], {
 					duration: 500,
 					iterations: 1
@@ -222,6 +229,7 @@ export default class Transport extends React.Component {
 					<div className="player-js_seek">
 						<SeekBar
 							state={ this.props.state }
+							handler={ this.props.handler }
 							disabled={ this.props.target && this.props.target.source.live && !this.props.target.source.rewind.enable }
 							currentTime={ this.state.currentTime }
 							bufferedTime={ this.state.bufferedTime }
@@ -292,11 +300,7 @@ export default class Transport extends React.Component {
 				<div className="player-js_foreground_fx">
 					<div className="player-js_foreground_state_change" ref={ this._setActionRef }>
 						{
-							this.props.action == PlaybackAction.PLAY ?
-								<svg key="s" fill="currentColor" xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 24 24" width="24px" height="24px"><path d="M8,5v14l11-7L8,5z"/></svg>
-							: this.props.action == PlaybackAction.PAUSE ?
-								<svg key="s" fill="currentColor" xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 24 24" width="24px" height="24px"><path d="M 6 5 L 6 19 L 10 19 L 10 5 L 6 5 z M 14 5 L 14 19 L 18 19 L 18 5 L 14 5 z"/></svg>
-								: null
+							this.renderAction()
 						}
 					</div>
 				</div>
@@ -321,11 +325,7 @@ export default class Transport extends React.Component {
 	}
 
 	_playPause = () => {
-		if (this.props.state == PlaybackState.PLAYING) {
-			this.props.onPause(true);
-		} else {
-			this.props.onPlay(true);
-		}
+		this.props.onPlayPause(true);
 	}
 
 	getPlayIconState () {
@@ -337,6 +337,28 @@ export default class Transport extends React.Component {
 
 			default:
 				return true;
+		}
+	}
+
+	renderAction () {
+		switch (this.props.action) {
+			case PlaybackAction.PLAY:
+				return <svg key="s" fill="currentColor" xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 24 24" width="24px" height="24px"><path d="M8,5v14l11-7L8,5z"/></svg>;
+
+			case PlaybackAction.PAUSE:
+				return <svg key="s" fill="currentColor" xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 24 24" width="24px" height="24px"><path d="M 6 5 L 6 19 L 10 19 L 10 5 L 6 5 z M 14 5 L 14 19 L 18 19 L 18 5 L 14 5 z"/></svg>;
+
+			case PlaybackAction.REWIND_5:
+				return <svg fill="currentColor" xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 24 24" width="24px" height="24px"><path d="M 11 6 L 2.5 12 L 11 18 L 11 6 z M 20 6 L 11.5 12 L 20 18 L 20 6 z"/></svg>;
+
+			case PlaybackAction.FORWARD_5:
+				return <svg key="s" fill="currentColor" xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 24 24" width="24px" height="24px"><path d="M 4 6 L 4 18 L 12.5 12 L 4 6 z M 13 6 L 13 18 L 21.5 12 L 13 6 z"/></svg>;
+
+			case PlaybackAction.VOLUME_UP:
+				return <svg key="s" fill="currentColor" xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 24 24" width="24px" height="24px"><path d="M 11 3 L 5 9 L 3 9 C 1.895 9 1 9.895 1 11 L 1 13 C 1 14.105 1.895 15 3 15 L 5 15 L 11 21 L 11 3 z M 19.484375 3.515625 L 18.070312 4.9296875 C 21.984175 8.8435492 21.984042 15.157495 18.070312 19.070312 L 19.484375 20.484375 C 24.162647 15.807192 24.162513 8.1937633 19.484375 3.515625 z M 16.65625 6.34375 L 15.242188 7.7578125 C 17.594098 10.109723 17.593888 13.891346 15.242188 16.242188 L 16.65625 17.65625 C 19.772549 14.541091 19.772339 9.4598394 16.65625 6.34375 z M 13.828125 9.171875 L 12.414062 10.585938 C 13.204152 11.376027 13.204152 12.623974 12.414062 13.414062 L 13.828125 14.830078 C 15.382035 13.276168 15.382035 10.725785 13.828125 9.171875 z"/></svg>;
+
+			case PlaybackAction.VOLUME_DOWN:
+				return <svg key="s" fill="currentColor" xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 24 24" width="24px" height="24px"><path d="M 12 3 L 6 9 L 2 9 L 2 15 L 6 15 L 12 21 Z M 14 8.09375 L 14 15.8125 C 15.699219 15.414063 17 13.898438 17 12 C 17 10.101563 15.699219 8.59375 14 8.09375 Z"/></svg>;
 		}
 	}
 

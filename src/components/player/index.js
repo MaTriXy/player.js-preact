@@ -45,11 +45,21 @@ export default class Player extends React.Component {
 
 	componentDidMount () {
 		window.addEventListener('fullscreenchange', this._fullScreenChange);
+		window.addEventListener('keydown', this._handleKeyPress);
 		this.load()
 	}
 
 	componentWillUnmount () {
 		window.removeEventListener('fullscreenchange', this._fullScreenChange);
+		window.removeEventListener('keydown', this._handleKeyPress);
+	}
+
+	componentDidUpdate (prevProps, prevState) {
+		if (prevProps.playlist != this.props.playlist) {
+			if (!this.props.playlist.find(s => s.id == this.state.target.id)) {
+				this.load();
+			}
+		}
 	}
 
 	load (force) {
@@ -68,19 +78,22 @@ export default class Player extends React.Component {
 			}
 		}
 
-		if (!force && this.state.target && this.state.target.id == target.id) {
+		if (!force && this.state.target && this.state.target.id === target.id) {
 			return;
 		}
 
+		let targetClone = Object.assign({}, target)
+
 		this.setState({
-			target
+			target: Object.assign(target, { source: {} }, targetClone)
 		}, () => this.loadSource())
 	}
 
 	async loadSource () {
 		// ok, what is it?
 		if (this.mediaRef) {
-			delete this.mediaRef.src;
+			this.mediaRef.removeAttribute('src');
+			this.mediaRef.load();
 		}
 
 		await this.setPlaybackState(PlaybackState.LOADING);
@@ -92,18 +105,22 @@ export default class Player extends React.Component {
 
 			let mediaFile = await fetch(
 				target.source.href,
-				{ mode: 'cors' }
+				{ mode: 'cors', method: 'HEAD' }
 			)
 
 			console.log('got data response', mediaFile)
 
-			let handler = protocols.find(mediaFile, target);
+			let handler = protocols.find(mediaFile, target, this.mediaRef);
 
 			console.log('got video handler', handler)
 
-			if (handler.url) {
+			if (handler.url && this.mediaRef.src != handler.url) {
 				this.mediaRef.src = handler.url;
 			}
+
+			this.setState({
+				handler
+			})
 
 		}
 	}
@@ -141,6 +158,11 @@ export default class Player extends React.Component {
 				buffered: ref.buffered.length ? ref.buffered.end(0) : 0
 			})
 		}
+	}
+
+	seekRelative (change) {
+		console.log('seeks to', this.mediaRef.currentTime + change)
+		this.seek(this.mediaRef.currentTime + change);
 	}
 
 	dispatch (type, nativeEvent, props = {}) {
@@ -220,6 +242,13 @@ export default class Player extends React.Component {
 	}
 
 	setPlaybackAction = (action) => {
+		if (action == this.state.action) {
+			return this.setState({
+				action: null
+			}, () => this.setState({
+				action
+			}));
+		}
 		this.setState({
 			action
 		})
@@ -227,7 +256,7 @@ export default class Player extends React.Component {
 
 	render () {
 		return (
-			<div ref={ this._setRootRef } className="player-js_root" style={ this.props.style }>
+			<div ref={ this._setRootRef } tabIndex={ 0 } className="player-js_root" style={ this.props.style }>
 				{
 					this.renderPlayer()
 				}
@@ -266,10 +295,12 @@ export default class Player extends React.Component {
 			<Transport
 				state={ this.state.state }
 				action={ this.state.action }
+				handler={ this.state.handler }
 				target={ this.state.target }
 				ref={ this._setTransportRef }
 				onPlay={ this._play }
 				onPause={ this._pause }
+				onPlayPause={ this._playPause }
 				onSeek={ this._seek }
 				onFullScreen={ this._fullScreen }
 				fullScreen={ this.state.fullScreen }
@@ -278,6 +309,14 @@ export default class Player extends React.Component {
 				onChangeVolume={ this._onChangeVolume }
 			></Transport>
 		)
+	}
+
+	_playPause = (gesture = true) => {
+		if (this.state.state == PlaybackState.PLAYING) {
+			this._pause(gesture);
+		} else {
+			this._play(gesture);
+		}
 	}
 
 	_onChangeVolume = (volume) => {
@@ -294,6 +333,8 @@ export default class Player extends React.Component {
 		} else {
 			this._lastVolume = volume;
 		}
+
+		volume = Math.max(Math.min(volume, 1), 0);
 
 		if (this.mediaRef) {
 			this.mediaRef.volume = volume;
@@ -312,6 +353,11 @@ export default class Player extends React.Component {
 	}
 
 	_fullScreen = () => {
+		if (this.state.fullScreen) {
+			document.exitFullscreen();
+			return;
+		}
+
 		let success = this._rootRef.requestFullscreen();
 
 		if (success) {
@@ -379,6 +425,44 @@ export default class Player extends React.Component {
 	_play = this.play.bind(this);
 	_pause = this.pause.bind(this);
 	_seek = this.seek.bind(this);
+
+	_handleKeyPress = (event) => {
+		if (!this._rootRef.contains(document.activeElement)) {
+			return;
+		}
+
+		console.log('handle key press', event.keyCode, event.keyCode == 37)
+
+		switch (event.keyCode) {
+			case 32:
+				this._playPause(true);
+				return event.preventDefault();
+
+			case 37:
+				this.seekRelative(-5);
+				this.setPlaybackAction(PlaybackAction.REWIND_5);
+				return event.preventDefault();
+
+			case 39:
+				this.seekRelative(5);
+				this.setPlaybackAction(PlaybackAction.FORWARD_5);
+				return event.preventDefault();
+
+			case 38:
+				this._onChangeVolume((this.mediaRef ? this.mediaRef.volume : this.state._volume) + 0.1);
+				this.setPlaybackAction(PlaybackAction.VOLUME_UP);
+				return event.preventDefault();
+
+			case 40:
+				this._onChangeVolume((this.mediaRef ? this.mediaRef.volume : this.state._volume) - 0.1);
+				this.setPlaybackAction(PlaybackAction.VOLUME_DOWN);
+				return event.preventDefault();
+
+			default:
+				break;
+		}
+
+	}
 
 }
 

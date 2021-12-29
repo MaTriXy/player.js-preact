@@ -19,15 +19,22 @@ export default class SeekBar extends React.Component {
 	}
 
 	_frame = () => {
+		return;
+
 		if (this.dead || !this.props.mediaRef) return;
 
 		let totalTime = this.props.totalTime;
 		let currentTime = this.props.mediaRef.currentTime;
 
 		if (this.props.rewind) {
+			let liveTotalTime = this.props.handler && this.props.handler.liveTotalTime;
+
 			totalTime = this.props.rewind.duration;
-			currentTime = Math.min(totalTime, totalTime + (currentTime - this.props.totalTime + 5));
+
+			currentTime = totalTime - (liveTotalTime - this.props.currentTime) + 5;
 		}
+
+		currentTime = Math.min(currentTime, totalTime)
 
 		if (currentTime != this._currentTime) {
 			this._currentRef.style.width = (100 * currentTime / totalTime) + '%';
@@ -49,21 +56,18 @@ export default class SeekBar extends React.Component {
 		let totalTime = this.props.totalTime;
 
 		if (this.props.rewind) {
-			// ok, we're a live stream with a custom rewind duration
-			// so our totalTime = rewind.duration
-			// our currentTime = (audio.currentTime - audio.duration + 5)
-			// and our bufferedTime = fuck it totalTime
+			let liveTotalTime = this.props.handler && this.props.handler.liveTotalTime;
 
 			totalTime = this.props.rewind.duration;
-			currentTime = Math.min(totalTime, totalTime + (currentTime - this.props.totalTime + 5));
 
-			bufferedTime = totalTime;
-
-			console.log('rr', totalTime, currentTime)
+			currentTime = totalTime - (liveTotalTime - this.props.currentTime) + 5;
 		}
 
+		currentTime = Math.min(currentTime, totalTime);
+		bufferedTime = Math.min(bufferedTime, totalTime);
+
 		return (
-			<div className={ "player-js_seek_hit " + (this.props.disabled ? " player-js_seek_disabled" : "") } tabIndex={ -1 } ref={ this._setHitArea } onClick={ this._seekTo } onMouseDown={ this._onSeekStart } onMouseUp={ this._onSeekEnd } >
+			<div className={ "player-js_seek_hit " + (this.props.disabled ? " player-js_seek_disabled" : "") } tabIndex={ -1 } ref={ this._setHitArea } onClick={ this._seekTo } onMouseMOve={ this._onLabelMove } onMouseDown={ this._onSeekStart } onMouseUp={ this._onSeekEnd } >
 				<div className={ "player-js_seek" + (this.state.seeking ? " player-js_seeking" : "") }>
 					<div className="player-js_seek_base">
 
@@ -78,6 +82,9 @@ export default class SeekBar extends React.Component {
 						</div>
 					</div>
 
+					<div className="player-js_seek_label" ref={ this._setLabelRef }>
+					</div>
+
 				</div>
 			</div>
 		)
@@ -85,6 +92,10 @@ export default class SeekBar extends React.Component {
 
 	_setHitArea = (ref) => {
 		this._hitArea = ref;
+	}
+
+	_setLabelRef = (ref) => {
+		this._labelRef = ref;
 	}
 
 	_setCurrentRef = (ref) => {
@@ -115,7 +126,9 @@ export default class SeekBar extends React.Component {
 		let x = Math.min(Math.max(e.pageX - rect.left - 6, 0), width);
 
 		if (this.props.rewind) {
-			return this.props.totalTime - (this.props.rewind.duration - (x / width * this.props.rewind.duration))
+			let tolerance = 5;
+
+			return this.props.handler.liveTotalTime - tolerance - (this.props.rewind.duration - (x / width * this.props.rewind.duration));
 		}
 
 		return x / width * this.props.totalTime;
@@ -147,6 +160,41 @@ export default class SeekBar extends React.Component {
 
 		this.props.onSeek(seekTime);
 	}
+
+	_onLabelMove = (e) => {
+		if (!this._labelRef) return;
+
+		let rect = this._hitArea.getBoundingClientRect()
+		this._labelRef.style.left = (e.pageX - rect.left - 34) + 'px';
+
+		requestAnimationFrame(() => {
+			let selectedTime = this._getTimeFromClick(e) + 5;
+			let negate = false;
+
+			if (this.props.rewind.duration) {
+				selectedTime = Math.floor(this.props.handler.liveTotalTime - selectedTime);
+				negate = selectedTime > 0;
+			}
+
+			this._labelRef.textContent = (negate ? '-' : '') + this.renderTime(selectedTime)
+		})
+
+	}
+
+	renderTime = (time) => {
+		if (!Number.isFinite(time)) {
+			return '--:--';
+		}
+
+		let timeStamp = new Date(1000 * (isNaN(time) ? 0 : time)).toISOString().slice(11, 19);
+
+		if (timeStamp.length > 5 && timeStamp.startsWith('00:')) {
+			return timeStamp.slice(3)
+		}
+
+		return timeStamp;
+	}
+
 
 	_seekTo = (e) => {
 		let time = this._getTimeFromClick(e);

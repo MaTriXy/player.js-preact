@@ -8,7 +8,7 @@ export default class Playground extends React.Component {
 		super(props);
 
 		this.state = {
-			playlist: [
+			playlist: /*[
 				{
 					id: '000',
 					type: 'video',
@@ -30,7 +30,21 @@ export default class Playground extends React.Component {
 						href: 'https://cdn.index.hm/f/wkkX0zk1MjZlOGI3MWY5Y/17.mp4'
 					}
 				}
-			]
+			]*/[
+					{
+						"id": "555",
+						"type": "video",
+						"source": {
+							"href": "https://scdnc.insanityradio.com/manifest/hls/video.m3u8",
+							"loader": "hls",
+							"live": true,
+							"rewind": {
+								"enable": true,
+								"duration": 600
+							}
+						}
+					}
+				]
 		}
 
 		this.state.editor = JSON.stringify(this.state.playlist, null, 4);

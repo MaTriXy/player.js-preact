@@ -7,7 +7,7 @@
   "module": "dist/index.m.js",
   "source": "components/player/index.js",
   "scripts": {
-    "build": "preact build --sw=false",
+    "build": "preact build --sw=false --no-prerender",
     "dist": "microbundle --entry src/components/player/index.js",
     "dev": "preact watch",
     "lint": "eslint src",
@@ -34,7 +34,9 @@
   },
   "dependencies": {
     "@fluentui/react": "^7.134.1",
+    "hls.js": "^1.1.2",
     "lottie-react": "^2.1.0",
+    "mp4box": "^0.4.9",
     "preact": "^10.3.2",
     "preact-render-to-string": "^5.1.4",
     "preact-router": "^3.2.1",
