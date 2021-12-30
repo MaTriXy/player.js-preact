@@ -11,10 +11,10 @@ export default class Playground extends React.Component {
 			playlist: [
 				{
 					"id": "555",
-					"type": "audio",
+					"type": "video",
 					"source": {
-						"href": "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8", // "https://scdnc.insanityradio.com/dash/hls/insanity/index.m3u8",
-						"loader": "hls",
+						"href": "https://dash.akamaized.net/akamai/bbb_30fps/bbb_30fps.mpd", // "https://scdnc.insanityradio.com/dash/hls/insanity/index.m3u8",
+						"loader": "dash",
 						"live": false,
 						"DISABLEDrewind": {
 							"enable": true,
@@ -48,6 +48,7 @@ export default class Playground extends React.Component {
 						<option value='[{"id":"3","type":"audio","source":{"href":"https://scdnc.insanityradio.com/dash/hls/insanity/index.m3u8","live":true,"rewind":{"enable":true,"duration":60}}}]'>Insanity Radio (HLS Audio)</option>
 
 						<option value='[{"id":"4","type":"video","source":{"href":"https://scdnc.insanityradio.com/manifest/hls/video.m3u8","live":true,"rewind":{"enable":true,"duration":600}}}]'>Insanity Radio Viz (HLS)</option>
+						<option value='[{"id":"5","type":"video","source":{"href":" https://livesim.dashif.org/livesim/ato_10/testpic_2s/Manifest.mpd","live":true,"rewind":{"enable":true,"duration":300}}}]'>DASH Live</option>
 					</select>
 					<textarea onChange={ this._changePlaylist }>
 						{

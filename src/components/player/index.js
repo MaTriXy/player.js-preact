@@ -97,6 +97,9 @@ export default class Player extends React.Component {
 
 		if (this.state.driver) {
 			this.state.driver.destroy();
+			await this.setStateAsync({
+				driver: null
+			})
 		}
 
 		await this.setPlaybackState(PlaybackState.LOADING);
@@ -148,6 +151,12 @@ export default class Player extends React.Component {
 		}
 	}
 
+	setStateAsync (newState) {
+		return new Promise(resolve => 
+			this.setState(newState, resolve)
+		)
+	}
+
 	play (gesture = true) {
 		if (this.mediaRef) {
 			this.mediaRef.play();
@@ -169,11 +178,17 @@ export default class Player extends React.Component {
 	}
 
 	seek (currentTime) {
+		console.log('seek to', currentTime)
 		this._seekTime = currentTime;
 
 		if (this.mediaRef) {
 			let ref = this.mediaRef;
-			ref.currentTime = currentTime;
+
+			if (this.state.driver && this.state.driver.seek) {
+				this.state.driver.seek(currentTime)
+			} else {
+				ref.currentTime = currentTime;
+			}
 
 			this.dispatch('timeupdate', event, {
 				time: currentTime,

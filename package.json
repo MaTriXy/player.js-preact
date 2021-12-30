@@ -8,7 +8,8 @@
   "source": "components/player/index.js",
   "scripts": {
     "build": "preact build --sw=false --no-prerender",
-    "dist": "microbundle --entry src/components/module.js --alias react=preact/compat --jsx React.createElement",
+    "dist:static": "microbundle --entry src/components/module.js -o dist/static --alias react=preact/compat --jsx React.createElement",
+    "dist": "microbundle --entry src/components/module.js --jsx React.createElement",
     "dev": "preact watch",
     "lint": "eslint src",
     "test": "jest"
@@ -23,25 +24,20 @@
     "@babel/core": "^7.11.5",
     "@babel/node": "^7.10.5",
     "babel-preset-preact": "^2.0.0",
+    "dashjs": "^4.2.1",
     "enzyme": "^3.10.0",
     "enzyme-adapter-preact-pure": "^2.0.0",
     "eslint": "^6.0.1",
     "eslint-config-preact": "^1.1.0",
+    "hls.js": "^1.1.2",
     "jest": "^24.9.0",
     "jest-preset-preact": "^1.0.0",
-    "microbundle": "^0.14.2",
-    "hls.js": "^1.1.2",
     "lottie-react": "^2.1.0",
-    "preact-cli": "^3.0.0",
-    "preact": "^10.3.2"
+    "microbundle": "^0.14.2",
+    "preact": "^10.3.2",
+    "preact-cli": "^3.0.0"
   },
-  "dependencies": {
-    "@fluentui/react": "^7.134.1",
-    "mp4box": "^0.4.9",
-    "preact-render-to-string": "^5.1.4",
-    "preact-router": "^3.2.1",
-    "run-middleware": "^0.9.10"
-  },
+  "dependencies": {},
   "jest": {
     "preset": "jest-preset-preact",
     "setupFiles": [

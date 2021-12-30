@@ -7,7 +7,7 @@ export default class SeekBar extends React.Component {
 
 	componentDidMount () {
 		if (this.props.mediaRef) {
-			console.log('medref', )
+			// console.log('medref', )
 			requestAnimationFrame(this._frame)
 		}
 	}
@@ -26,12 +26,12 @@ export default class SeekBar extends React.Component {
 		let totalTime = this.props.totalTime;
 		let currentTime = this.props.mediaRef.currentTime;
 
-		if (this.props.rewind) {
+		if (this.props.driver && this.props.rewind) {
 			let liveTotalTime = this.props.driver && this.props.driver.liveTotalTime;
 
 			totalTime = this.props.rewind.duration;
 
-			currentTime = totalTime - (liveTotalTime - this.props.currentTime) + 5;
+			currentTime = totalTime - (liveTotalTime - this.props.driver.currentTime) + this.props.driver.tolerance;
 		}
 
 		currentTime = Math.min(currentTime, totalTime)
@@ -55,19 +55,19 @@ export default class SeekBar extends React.Component {
 		let bufferedTime = this.props.bufferedTime;
 		let totalTime = this.props.totalTime;
 
-		if (this.props.rewind) {
+		if (this.props.rewind && this.props.driver) {
 			let liveTotalTime = this.props.driver && this.props.driver.liveTotalTime;
 
 			totalTime = this.props.rewind.duration;
 
-			currentTime = totalTime - (liveTotalTime - this.props.currentTime) + 5;
+			currentTime = totalTime - (liveTotalTime - this.props.driver.currentTime) + this.props.driver.tolerance;
 		}
 
 		currentTime = Math.min(currentTime, totalTime);
 		bufferedTime = Math.min(bufferedTime, totalTime);
 
 		return (
-			<div className={ "player-js_seek_hit " + (this.props.disabled ? " player-js_seek_disabled" : "") } tabIndex={ -1 } ref={ this._setHitArea } onClick={ this._seekTo } onMouseMOve={ this._onLabelMove } onMouseDown={ this._onSeekStart } onMouseUp={ this._onSeekEnd } >
+			<div className={ "player-js_seek_hit " + (this.props.disabled ? " player-js_seek_disabled" : "") } tabIndex={ -1 } ref={ this._setHitArea } onClick={ this._seekTo } onMouseMove={ this._onLabelMove } onMouseDown={ this._onSeekStart } onMouseUp={ this._onSeekEnd } >
 				<div className={ "player-js_seek" + (this.state.seeking ? " player-js_seeking" : "") }>
 					<div className="player-js_seek_base">
 
@@ -132,10 +132,9 @@ export default class SeekBar extends React.Component {
 		let width = rect.width - 10;
 		let x = Math.min(Math.max(e.pageX - rect.left - 6, 0), width);
 
-		if (this.props.rewind) {
-			let tolerance = 5;
+		if (this.props.rewind && this.props.driver) {
 
-			return this.props.driver.liveTotalTime - tolerance - (this.props.rewind.duration - (x / width * this.props.rewind.duration));
+			return this.props.driver.liveTotalTime - (this.props.rewind.duration - (x / width * this.props.rewind.duration));
 		}
 
 		return x / width * this.props.totalTime;
@@ -161,6 +160,10 @@ export default class SeekBar extends React.Component {
 
 		let seekTime = this._getTimeFromClick(e);
 
+		if (this.props.driver) {
+			seekTime -= this.props.driver.tolerance;
+		}
+
 		this.setState({
 			seekTime
 		})
@@ -177,10 +180,10 @@ export default class SeekBar extends React.Component {
 		this._seekRef.style.width = (e.pageX - rect.left - 5) + 'px';
 
 		requestAnimationFrame(() => {
-			let selectedTime = this._getTimeFromClick(e) + 5;
+			let selectedTime = this._getTimeFromClick(e);
 			let negate = false;
 
-			if (this.props.rewind && this.props.rewind.duration) {
+			if (this.props.driver && this.props.rewind && this.props.rewind.duration) {
 				selectedTime = Math.floor(this.props.driver.liveTotalTime - selectedTime);
 				negate = selectedTime > 0;
 			}
@@ -207,6 +210,10 @@ export default class SeekBar extends React.Component {
 
 	_seekTo = (e) => {
 		let time = this._getTimeFromClick(e);
+
+		if (this.props.driver) {
+			time -= this.props.driver.tolerance;
+		}
 
 		this.props.onSeek(time);
 	}

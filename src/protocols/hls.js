@@ -47,11 +47,7 @@ export default class HLSProtocol {
 	}
 
 	get tolerance () {
-		let currentFrag = this.hls.streamController.fragPlaying;
-
-		let currentTime = this.hls.media.currentTime - (currentFrag && currentFrag.start || 0);
-
-		return currentTime;
+		return 0; 
 	}
 
 	get liveTotalTime () {
