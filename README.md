@@ -30,9 +30,15 @@ Install the package
     yarn add @player.js/core
     (or) yarn add https://github.com/Jamie0/player.js
 
-Then, simply require
+A very simple example:
 
+    import React from 'react';
     import Player from '@player.js/core';
+
+    export default function renderPlayer ({ playlist }) {
+        return <Player autoplay={ true } playlist={ playlist } />
+    }
+
 
 ### Vanilla HTML/JS
 
