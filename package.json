@@ -1,6 +1,6 @@
 {
   "name": "@player.js/core",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "license": "UNLICENSED",
   "main": "dist/index.js",
   "umd:main": "dist/index.umd.js",
@@ -10,15 +10,7 @@
     "build": "preact build --sw=false --no-prerender",
     "dist:static": "microbundle --name=player.js -css=inline --entry src/components/module.js -o dist/static/player.js.js --alias react=preact/compat --jsx React.createElement",
     "dist": "microbundle --entry src/components/module.js --jsx React.createElement",
-    "dev": "preact watch",
-    "lint": "eslint src",
-    "test": "jest"
-  },
-  "eslintConfig": {
-    "extends": "preact",
-    "ignorePatterns": [
-      "build/"
-    ]
+    "dev": "preact watch"
   },
   "devDependencies": {
     "@babel/core": "^7.11.5",
@@ -37,12 +29,5 @@
     "preact": "^10.3.2",
     "preact-cli": "^3.0.0"
   },
-  "dependencies": {},
-  "jest": {
-    "preset": "jest-preset-preact",
-    "setupFiles": [
-      "<rootDir>/tests/__mocks__/browserMocks.js",
-      "<rootDir>/tests/__mocks__/setupTests.js"
-    ]
-  }
+  "dependencies": {}
 }
