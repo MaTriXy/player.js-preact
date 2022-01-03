@@ -7,7 +7,6 @@ export default class SeekBar extends React.Component {
 
 	componentDidMount () {
 		if (this.props.mediaRef) {
-			// console.log('medref', )
 			requestAnimationFrame(this._frame)
 		}
 	}

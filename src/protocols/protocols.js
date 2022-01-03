@@ -9,8 +9,6 @@ export default class Protocols {
 		let contentType = fetchResponse.headers.get('content-type');
 		let extension = fetchResponse.url.split('.').pop();
 
-		console.log('find ', playlistItem.source && playlistItem.source.loader, this.loaders)
-
 		if (this.loaders[playlistItem.source && playlistItem.source.loader]) {
 			return new this.loaders[playlistItem.source.loader](fetchResponse, playlistItem, media);
 		}
@@ -38,7 +36,5 @@ export default class Protocols {
 		if ('NAME' in handler) {
 			this.loaders[handler.NAME] = handler;
 		}
-
-		console.log('registered source', handler.NAME)
 	}
 }

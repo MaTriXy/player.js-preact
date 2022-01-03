@@ -17,7 +17,6 @@ export default class HeightAsProp extends React.Component {
 	}
 
 	componentDidMount () {
-		console.log('ref test', this._ref)
 		if (this._ref) {
 			let height = this._ref.scrollHeight;
 

@@ -1,8 +1,6 @@
 import Protocols from './protocols';
 import DASHjs from 'dashjs';
 
-console.log('dash', DASHjs)
-
 export default class DASHProtocol {
 	static NAME = 'dash';
 

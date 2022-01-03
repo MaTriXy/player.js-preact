@@ -1,23 +1,27 @@
 import Player from './player';
 import React from 'react';
-import { PlaybackState, PlaybackAction } from '../constants';
+import { PlaybackState, PlaybackAction, eventHandlerProps } from '../constants';
+import Protocols from '../protocols';
 
 import _style from '../style/index.css';
 
 const coerce = (value, name) => {
-	if (name.match(/^on[A-Z]/) && typeof value == 'string') {
+	if (Object.keys(eventHandlerProps).includes('on' + name) && typeof value == 'string') {
 		// i mean the dom pretty much does this too...
-		return function () {
-			eval(value);
-		}
+		return [
+			eventHandlerProps['on' + name],
+			function (event) {
+				return eval(value);
+			}
+		]
 	}
 
 	try {
-		return JSON.parse(value);
+		return [name, JSON.parse(value)];
 	} catch (e) {
 	}
 
-	return value;
+	return [name, value];
 }
 
 class VideoPlayer extends HTMLElement {
@@ -78,4 +82,4 @@ if (typeof window != 'undefined' && window.customElements) {
 }
 
 export default Player;
-export { PlaybackState, PlaybackAction };
+export { PlaybackState, PlaybackAction, Protocols };

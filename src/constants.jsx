@@ -26,6 +26,7 @@ const eventHandlerProps = {
 	'loadstart': 'onLoadStart',
 	'pause': 'onPause',
 	'play': 'onPlay',
+	'stalled': 'onStalled',
 	'playing': 'onPlaying',
 }
 

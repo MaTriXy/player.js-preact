@@ -536,8 +536,6 @@ export default class Transport extends React.Component {
 	}
 
 	_setBitrate = (level) => {
-		console.log('req bitrate change', level);
-
 		if (this.props.driver) {
 			this.props.driver.adaptiveSet = level;
 		}

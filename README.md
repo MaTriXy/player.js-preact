@@ -56,8 +56,6 @@ https://index.hm/dev/player/index.html
 
 You can use most of the standard React properties for media elements, but the event object might not be a native object depending on the driver being used.
 
-If using as standalone JavaScript, note that you will need to use React-style casing for event names. They are detailed below under Events. 
-
 ### Props
 
 #### `playlist = [PlaylistObject]` (required)
@@ -93,6 +91,8 @@ Whether or not to try autoplay (if the browser permits it).
 ### Events
 
 The second argument is a `props` object. It includes a reference to the player in case you don't have the ref in scope. 
+
+If using as standalone JavaScript, you can subscribe using the attribute onevent. Use of addEventListener is not yet supported as the DOM won't handle event objects used in drivers. 
 
 #### `onPlay = (event, props)`
 
