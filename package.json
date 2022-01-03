@@ -1,5 +1,5 @@
 {
-  "name": "player.js",
+  "name": "@player.js/core",
   "version": "0.0.1",
   "license": "UNLICENSED",
   "main": "dist/index.js",
@@ -8,7 +8,7 @@
   "source": "components/player/index.js",
   "scripts": {
     "build": "preact build --sw=false --no-prerender",
-    "dist:static": "microbundle --entry src/components/module.js -o dist/static --alias react=preact/compat --jsx React.createElement",
+    "dist:static": "microbundle --name=player.js -css=inline --entry src/components/module.js -o dist/static/player.js.js --alias react=preact/compat --jsx React.createElement",
     "dist": "microbundle --entry src/components/module.js --jsx React.createElement",
     "dev": "preact watch",
     "lint": "eslint src",

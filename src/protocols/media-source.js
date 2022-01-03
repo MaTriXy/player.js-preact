@@ -2,7 +2,8 @@ import Protocols from './protocols';
 
 import MP4Box from 'mp4box';
 
-// this doesn't work lol 
+// this doesn't quite work yet but could eventually be revived into another package. 
+// or if you're reading this you could :-)
 
 export default class MediaSourceProtocol {
 	static NAME = 'mse';
@@ -10,8 +11,6 @@ export default class MediaSourceProtocol {
 	constructor (fetchResponse, playlistItem) {
 		this.mediaSource = new MediaSource();
 		this.url = URL.createObjectURL(this.mediaSource);
-
-		console.log('yee ms')
 
 		this._url = fetchResponse.url;
 
@@ -22,9 +21,7 @@ export default class MediaSourceProtocol {
 	}
 
 	_onOpen = async (event) => {
-		console.log('0')
 		let response = await fetch(this._url, { mode: 'cors' })
-		console.log('a')
 
 		let reader = response.body.getReader();
 		let length = 0;
@@ -53,7 +50,6 @@ export default class MediaSourceProtocol {
 		let lastSampleNo = 0;
 
 		mp4box.onSegment = (id, user, buffer, sampleNo, last) => {
-			console.log('seggo', id, user, sampleNo)
 			if (sampleNo <= lastSampleNo) return;
 
 			lastSampleNo = sampleNo;
@@ -78,11 +74,8 @@ export default class MediaSourceProtocol {
 			}
 		}
 
-		console.log('rdy');
-
 		this.sourceBuffer.addEventListener('updateend', async () => {
 			if (buffer.length) {
-				console.log('pump it out')
 				this.sourceBuffer.appendBuffer(buffer.shift());
 				return;
 			}
@@ -96,53 +89,10 @@ export default class MediaSourceProtocol {
 				return;
 			}
 
-			console.log('pump it', value.length)
-
 			this.sourceBuffer.appendBuffer(value.buffer);
 		})
 
 		this.sourceBuffer.appendBuffer(buffer.shift());
-
-
-		/* let mime = await new Promise((resolve) => {
-			let mp4box = MP4Box.createFile();
-			mp4box.onReady = function (info) {
-				resolve(info.mime);
-			}
-
-			value.buffer.fileStart = 0;
-
-			mp4box.appendBuffer(value.buffer)
-			buffers.push(value.buffer);
-
-
-		})
-
-		console.log('mse open', event, this.mime)
-
-		let sourceBuffer = event.target.addSourceBuffer(mime);
-
-		console.log('got sb', sourceBuffer)
-
-		sourceBuffer.addEventListener('updateend', async () => {
-			let { done, value } = await reader.read();
-
-			if (done) {
-				if (!sourceBuffer.updating && this.mediaSource.readyState === 'open') {
-					// this.mediaSource.endOfStream();
-				}
-				return;
-			}
-
-			console.log('pump it', value.length)
-
-			sourceBuffer.appendBuffer(value.buffer);
-		})
-
-		sourceBuffer.addEventListener('abort', (e) => console.log('se abort', e))
-		sourceBuffer.addEventListener('error', (e) => console.log('se error', e))
-
-		sourceBuffer.appendBuffer(value.buffer); */ 
 
 	}
 }

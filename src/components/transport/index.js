@@ -9,6 +9,7 @@ import playPause from './icons/playPause.json';
 import mute from './icons/mute.json';
 import fullscreen from './icons/fullscreen.json';
 import settings from './icons/settings.json';
+import loading from './icons/loading.json';
 
 const _dontPropagateUp = (e) => {
 	e.stopPropagation();
@@ -69,6 +70,7 @@ class StatefulButton extends React.Component {
 					key={ 1 }
 					autoplay={ false }
 					loop={ false }
+					speed={ this.props.speed }
 					lottieRef={ this._lottieRef }
 					initialSegment={ [this.props.offState, this.props.onState] }
 					style={{ height: '24px', fill: 'currentColor' }}
@@ -86,7 +88,7 @@ StatefulButton.defaultProps = {
 class VolumeSlider extends React.Component {
 	render () {
 		return (
-			<div className="player-js_volume_slider" ref={ this._setHitArea } onClick={ this._seekTo } onMouseDown={ this._onSeekStart } onMouseMove={ this._onSeekMove } onMouseUp={ this._onSeekEnd }>
+			<div className="player-js_volume_slider" ref={ this._setHitArea } onClick={ this._seekTo } onMouseDown={ this._onSeekStart } onTouchStart={ this._onTouchStart } onMouseMove={ this._onSeekMove } onMouseUp={ this._onSeekEnd }>
 				<div className="player-js_volume_hit">
 					<div className="player-js_volume_base">
 
@@ -106,10 +108,17 @@ class VolumeSlider extends React.Component {
 		this._hitArea = ref;
 	}
 
+	_onTouchStart = (e) => {
+		this._onSeekStart(e);
+	}
+
 	_onSeekStart = (e) => {
-		// e.preventDefault()
-		window.addEventListener('mouseup', this._onSeekEnd)
-		window.addEventListener('mousemove', this._onSeekMove)
+		window.addEventListener('mouseup', this._onSeekEnd);
+		window.addEventListener('mousemove', this._onSeekMove);
+
+		window.addEventListener('touchend', this._onSeekEnd);
+		window.addEventListener('touchcancel', this._onSeekEnd);
+		window.addEventListener('touchmove', this._onSeekMove);
 
 		this.setState({
 			seeking: true
@@ -119,7 +128,10 @@ class VolumeSlider extends React.Component {
 	_getVolumeFromClick (e) {
 		let rect = this._hitArea.getBoundingClientRect()
 		let width = rect.width - 10;
-		let x = Math.min(Math.max(e.pageX - rect.left - 6, 0), width);
+
+		let pageX = e.changedTouches && e.changedTouches[0].pageX || e.pageX;
+
+		let x = Math.min(Math.max(pageX - rect.left - 6, 0), width);
 
 		return x / width;
 	}
@@ -133,8 +145,12 @@ class VolumeSlider extends React.Component {
 			document.activeElement.blur();
 		}
 
-		window.removeEventListener('mouseup', this._onSeekEnd)
-		window.removeEventListener('mousemove', this._onSeekMove)
+		window.removeEventListener('mouseup', this._onSeekEnd);
+		window.removeEventListener('mousemove', this._onSeekMove);
+
+		window.removeEventListener('touchend', this._onSeekEnd);
+		window.removeEventListener('touchcancel', this._onSeekEnd);
+		window.removeEventListener('touchmove', this._onSeekMove);
 	}
 
 	_onSeekMove = (e) => {
@@ -156,6 +172,11 @@ export default class Transport extends React.Component {
 
 	state = {
 		hidden: false
+	}
+
+	constructor (props) {
+		super(props);
+		this._bufferLottieRef = React.createRef();
 	}
 
 	dispatch (type, nativeEvent, props = {}) {
@@ -252,7 +273,7 @@ export default class Transport extends React.Component {
 
 	render () {
 		return (
-			<div className="player-js_transport_contain" onMouseMove={ this._showAndResetTimer } onMouseLeave={ this._resetTimerFast } onClick={ this._playPause }>
+			<div className="player-js_transport_contain" onMouseMove={ this._showAndResetTimer } onMouseLeave={ this._resetTimerFast } onClick={ this._playPauseOrHide }>
 				<div className="player-js_transport_controls_gradient" onClick={ _dontPropagateUp }>
 				</div>
 				<div className={ "player-js_transport" + (this.state.hidden && !this.state.settings ? " player-js_transport_hide" : "") } onClick={ _dontPropagateUp }>
@@ -297,6 +318,7 @@ export default class Transport extends React.Component {
 								className={ "player-js_transport_button mute_btn" } 
 								title="Mute"
 								onClick={ this._toggleMute }
+								onTouchStart={ this._showVolumeTouch }
 								onMouseMove={ this._showVolume }
 								onMouseLeave={ this._hideVolume }
 							>
@@ -365,6 +387,22 @@ export default class Transport extends React.Component {
 							this.renderAction()
 						}
 					</div>
+
+					{ (this.props.state == PlaybackState.BUFFERING) &&
+						<div className="player-js_foreground_buffering">
+							<Lottie
+								autoplay={ true }
+								loop={ true }
+								lottieRef={ this._bufferLottieRef }
+								onDOMLoaded={ () => 
+									this._bufferLottieRef.current
+										&& this._bufferLottieRef.current.setSpeed(0.75)
+								}
+								style={{ height: '60px', fill: 'currentColor' }}
+								animationData={ loading }
+							/>
+						</div>
+					}
 				</div>
 			</div>
 		)
@@ -394,6 +432,12 @@ export default class Transport extends React.Component {
 		this.props.onChangeVolume(null);
 	}
 
+	_showVolumeTouch = (e) => {
+		e.preventDefault();
+
+		this._showVolume();
+	}
+
 	_showVolume = () => {
 		this.setState({
 			volume: true
@@ -408,6 +452,20 @@ export default class Transport extends React.Component {
 
 	_playPause = () => {
 		this.props.onPlayPause(true);
+	}
+
+	_playPauseOrHide = () => {
+		if (!this.state.settings && !this.state.volume) {
+			return this._playPause();
+		}
+
+		if (this.state.volume) {
+			this._hideVolume();
+		}
+
+		if (this.state.settings) {
+			this._hideSettings();
+		}
 	}
 
 	getPlayIconState () {

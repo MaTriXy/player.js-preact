@@ -1,0 +1,6 @@
+node_modules
+build
+yarn.lock
+yarn*log
+size-plugin.json
+.DS_Store

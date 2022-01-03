@@ -6,6 +6,10 @@
 	min-height: 400px;
 }
 
+.player-js_root:focus, .player {
+	outline: none;
+}
+
 .player-js_video {
 	position: absolute;
 	top: 0;
@@ -158,6 +162,7 @@
 	transform: scale(0.01);
 	opacity: 0;
 	border-radius: 100%;
+	transition: all 0.05s;
 	box-shadow: 0px 0.5px 1px 2px rgba(0, 0, 0, 0.05);
 	background: #FFF;
 }
@@ -167,6 +172,7 @@
 	transform: unset !important;
 	opacity: 1;
 }
+
 
 .player-js_seek_hit > * {
 	pointer-events: none;
@@ -182,7 +188,7 @@
 }
 
 .player-js_seek_hit:focus .player-js_seek_scrub, .player-js_seek_scrub:focus, .player-js_seek_scrub:focus-within {
-	background: #0F0 !important;
+	background: #FFF !important;
 }
 
 .player-js_transport {
@@ -222,7 +228,7 @@
 	top: 50%;
 	width: 40px;
 	height: 40px;
-	margin: -20px 0 0 -20px;
+	margin: -30px 0 0 -20px;
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -230,6 +236,23 @@
 	color: #FFF;
 	background: rgba(50, 50, 50, 0.9);
 	opacity: 0;
+}
+
+.player-js_foreground_buffering {
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	width: 60px;
+	height: 60px;
+	margin-left: -30px;
+	margin-top: -30px;
+	transform: scale(1.2);
+	opacity: 0.7;
+	color: #FFF !important;
+}
+
+.player-js_foreground_buffering svg * {
+	stroke: currentColor !important;
 }
 
 .player-js_time_units {
@@ -279,6 +302,7 @@
 	transition: all 0.05s;
 	opacity: 1;
 	min-width: 100px;
+	overflow: hidden;
 	overflow: clip;
 	height: 0px;
 	bottom: 60px;

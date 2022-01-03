@@ -67,7 +67,7 @@ export default class SeekBar extends React.Component {
 		bufferedTime = Math.min(bufferedTime, totalTime);
 
 		return (
-			<div className={ "player-js_seek_hit " + (this.props.disabled ? " player-js_seek_disabled" : "") } tabIndex={ -1 } ref={ this._setHitArea } onClick={ this._seekTo } onMouseMove={ this._onLabelMove } onMouseDown={ this._onSeekStart } onMouseUp={ this._onSeekEnd } >
+			<div className={ "player-js_seek_hit " + (this.props.disabled ? " player-js_seek_disabled" : "") } tabIndex={ -1 } ref={ this._setHitArea } onClick={ this._seekTo } onMouseMove={ this._onLabelMove } onTouchStart={ this._onTouchStart } onMouseDown={ this._onSeekStart } onMouseUp={ this._onSeekEnd } >
 				<div className={ "player-js_seek" + (this.state.seeking ? " player-js_seeking" : "") }>
 					<div className="player-js_seek_base">
 
@@ -109,18 +109,26 @@ export default class SeekBar extends React.Component {
 		this._seekRef = ref;
 	}
 
-	_onSeekStart = (e) => {
-		e.preventDefault()
+	_onTouchStart = (e) => {
+		this._onSeekStart(null, e);
+	}
+
+	_onSeekStart = (e, _e) => {
+		e && e.preventDefault()
 
 		this._shouldPlay = this.props.state == 4;
 
 		this.setState({
 			seeking: true,
-			seekTime: this._getTimeFromClick(e)
-		})
+			seekTime: this._getTimeFromClick(e || _e)
+		});
 
-		window.addEventListener('mouseup', this._onSeekEnd)
-		window.addEventListener('mousemove', this._onSeekMove)
+		window.addEventListener('mouseup', this._onSeekEnd);
+		window.addEventListener('mousemove', this._onSeekMove);
+
+		window.addEventListener('touchend', this._onSeekEnd);
+		window.addEventListener('touchcancel', this._onSeekEnd);
+		window.addEventListener('touchmove', this._onSeekMove);
 
 		if (this._shouldPlay) {
 			this.props.onPause(false)
@@ -128,9 +136,12 @@ export default class SeekBar extends React.Component {
 	}
 
 	_getTimeFromClick (e) {
-		let rect = this._hitArea.getBoundingClientRect()
+		let rect = this._hitArea.getBoundingClientRect();
 		let width = rect.width - 10;
-		let x = Math.min(Math.max(e.pageX - rect.left - 6, 0), width);
+
+		let pageX = e.changedTouches && e.changedTouches[0].pageX || e.pageX;
+
+		let x = Math.min(Math.max(pageX - rect.left - 6, 0), width);
 
 		if (this.props.rewind && this.props.driver) {
 
@@ -144,10 +155,13 @@ export default class SeekBar extends React.Component {
 		this.setState({
 			seeking: false,
 			seekTime: null
-		})
+		});
 
-		window.removeEventListener('mouseup', this._onSeekEnd)
-		window.removeEventListener('mousemove', this._onSeekMove)
+		window.removeEventListener('mouseup', this._onSeekEnd);
+		window.removeEventListener('mousemove', this._onSeekMove);
+		window.removeEventListener('touchend', this._onSeekEnd);
+		window.removeEventListener('touchcancel', this._onSeekEnd);
+		window.removeEventListener('touchmove', this._onSeekMove);
 
 		if (this._shouldPlay) {
 			this.props.onPlay(false)

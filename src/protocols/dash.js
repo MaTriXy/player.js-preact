@@ -17,16 +17,20 @@ export default class DASHProtocol {
 	}
 
 	destroy () {
-		console.log('destroy adaptor')
 		this.dash.destroy();
 	}
 
+	addEventListener (event, handler) {
+		switch (event) {
+			case 'buffering':
+				return this.dash.on(DASHjs.MediaPlayer.events.BUFFER_EMPTY, (e) => {
+					handler(e);
+				})
+		}
+	}
+
 	get tolerance () {
-		//let currentFrag = this.dash.streamController.fragPlaying;
-
-		//let currentTime = this.currentTime - (currentFrag && currentFrag.start || 0);
-
-		return 10; // currentTime;
+		return this.playlistItem.source.live ? 10 : 0;
 	}
 
 	get liveTotalTime () {
@@ -75,7 +79,10 @@ export default class DASHProtocol {
 	} : { key: 0, text: '-' })
 }
 
-Protocols.register({
-	name: 'dash',
-	extension: 'mpd'
-}, DASHProtocol);
+Protocols.register(
+	{
+		name: 'dash',
+		extension: 'mpd'
+	},
+	DASHProtocol
+);

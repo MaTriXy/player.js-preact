@@ -3,7 +3,7 @@ import React from 'react';
 import Transport from '../transport';
 import protocols from '../../protocols';
 
-import { PlaybackState, PlaybackAction } from '../../constants';
+import { PlaybackState, PlaybackAction, eventHandlerProps } from '../../constants';
 
 
 const DefaultPlaylistItem = {
@@ -38,8 +38,6 @@ export default class Player extends React.Component {
 
 	constructor (props) {
 		super(props);
-
-		window._player = this;
 	}
 
 	componentDidMount () {
@@ -88,11 +86,17 @@ export default class Player extends React.Component {
 		}, () => this.loadSource())
 	}
 
+	get playlistItem () {
+		return this.state.target;
+	}
+
 	async loadSource () {
 		// ok, what is it?
 		if (this.mediaRef) {
 			this.mediaRef.removeAttribute('src');
 			this.mediaRef.load();
+
+			this.mediaRef._playerInstance = this;
 		}
 
 		if (this.state.driver) {
@@ -114,11 +118,9 @@ export default class Player extends React.Component {
 				{ mode: 'cors', method: 'HEAD' }
 			)
 
-			console.log('got data response', mediaFile)
-
 			let driver = protocols.find(mediaFile, target, this.mediaRef);
 
-			console.log('got video driver', driver)
+			console.log('Loaded video driver', driver)
 
 			if (driver.url && this.mediaRef.src != driver.url) {
 				this.mediaRef.src = driver.url;
@@ -128,7 +130,9 @@ export default class Player extends React.Component {
 				await driver.loading;
 			}
 
-			console.log('driver loaded')
+			if (driver.addEventListener) {
+				driver.addEventListener('buffering', this._onBuffering);
+			}
 
 			this.setState({
 				driver
@@ -177,8 +181,15 @@ export default class Player extends React.Component {
 		}
 	}
 
+	get currentTime () {
+		return this.driver && this.driver.currentTime || this.mediaRef && this.mediaRef.currentTime;
+	}
+
+	get duration () {
+		return this.mediaRef && this.mediaRef.duration;
+	}
+
 	seek (currentTime) {
-		console.log('seek to', currentTime)
 		this._seekTime = currentTime;
 
 		if (this.mediaRef) {
@@ -199,19 +210,17 @@ export default class Player extends React.Component {
 	}
 
 	seekRelative (change) {
-		console.log('seeks to', this.mediaRef.currentTime + change)
 		this.seek(this.mediaRef.currentTime + change);
 	}
 
 	dispatch (type, nativeEvent, props = {}) {
 		switch (type) {
+			case 'stalled':
 			case 'buffering': {
-				console.log('buffering')
 				this.setPlaybackState(PlaybackState.BUFFERING, nativeEvent, props)
 				break;
 			}
 			case 'canplay': {
-				console.log('canplay')
 				this.setPlaybackState(PlaybackState.PAUSED, nativeEvent, props)
 
 
@@ -224,7 +233,6 @@ export default class Player extends React.Component {
 				break;
 			}
 			case 'loadstart': {
-				console.log('loadstart')
 				this.setPlaybackState(PlaybackState.LOADING, nativeEvent, props);
 
 				this._onTimeUpdate(nativeEvent);
@@ -252,7 +260,6 @@ export default class Player extends React.Component {
 						finished: true
 					})
 				}), () => {
-					console.log('ye load')
 					this.load(true);
 				})
 			}
@@ -262,6 +269,16 @@ export default class Player extends React.Component {
 		if (this._transportRef) {
 			this._transportRef.dispatch(type, nativeEvent, props);
 		}
+
+		if (this.props[eventHandlerProps[type]]) {
+			if (typeof props != 'object') {
+				props = {}
+			}
+
+			props.player = this;
+
+			this.props[eventHandlerProps[type]](nativeEvent, props);
+		}
 	}
 
 	setPlaybackState = (state, event, props) => {
@@ -269,7 +286,6 @@ export default class Player extends React.Component {
 			this.setState({
 				state
 			}, () => {
-				console.log('state', state)
 				resolve();
 
 				if (this.props.onStateUpdate) {
@@ -418,6 +434,7 @@ export default class Player extends React.Component {
 	bindEvents (ref) {
 		if (this.mediaRef) {
 			this.mediaRef.removeEventListener('buffering', this._onBuffering);
+			this.mediaRef.removeEventListener('stalled', this._onStalled);
 			this.mediaRef.removeEventListener('canplay', this._onCanPlay);
 			this.mediaRef.removeEventListener('error', this._onError);
 			this.mediaRef.removeEventListener('loadstart', this._onLoadStart);
@@ -431,6 +448,7 @@ export default class Player extends React.Component {
 
 		if (ref) {
 			ref.addEventListener('buffering', this._onBuffering);
+			ref.addEventListener('stalled', this._onStalled);
 			ref.addEventListener('canplay', this._onCanPlay);
 			ref.addEventListener('error', this._onError);
 			ref.addEventListener('loadstart', this._onLoadStart);
@@ -444,6 +462,7 @@ export default class Player extends React.Component {
 	}
 
 	_onBuffering = this.dispatch.bind(this, 'buffering');
+	_onStalled = this.dispatch.bind(this, 'stalled');
 	_onCanPlay = this.dispatch.bind(this, 'canplay');
 	_onError = this.dispatch.bind(this, 'error');
 	_onLoadStart = this.dispatch.bind(this, 'loadstart');
@@ -470,8 +489,6 @@ export default class Player extends React.Component {
 		if (!this._rootRef.contains(_document.activeElement)) {
 			return;
 		}
-
-		console.log('handle key press', event.keyCode, event.keyCode == 37)
 
 		switch (event.keyCode) {
 			case 32:
@@ -522,3 +539,5 @@ Player.defaultProps = {
 	autoplay: true,
 	playlist: [DefaultPlaylistItem]
 }
+
+export { PlaybackState, PlaybackAction };

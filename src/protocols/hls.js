@@ -17,29 +17,31 @@ export default class HLSProtocol {
 		this.loading = new Promise((resolve) => {
 			this.loading = null;
 
+			// hacky workaround to make the canplay event fire
 			let handler = async () => {
-				// if (this.hls.media.readyState < 2) {
-					// console.log('nope')
-					// this.hls.once(HLSjs.Events.BUFFER_APPENDED, handler)
-				// } else {
+				try {
+					await this.hls.media.play()
+					await this.hls.media.pause()
+				} catch (e) {
 
-					try {
-						await this.hls.media.play()
-						await this.hls.media.pause()
-					} catch (e) {
+				}
 
-					}
-
-					setTimeout(() => resolve(), 10);
-				// }
+				setTimeout(() => resolve(), 10);
 			}
 
 			this.hls.once(HLSjs.Events.BUFFER_APPENDED, handler)
-
-			// resolve();
 		})
+	}
 
-		console.log('hls', this.hls)
+	addEventListener (event, handler) {
+		switch (event) {
+			case 'buffering':
+				return this.hls.on(HLSjs.Events.ERROR, (_, e) => {
+					if (e.details == HLSjs.ErrorDetails.BUFFER_STALLED_ERROR) {
+						handler(e);
+					}
+				})
+		}
 	}
 
 	destroy () {
@@ -96,7 +98,10 @@ export default class HLSProtocol {
 	} : { key: 0, text: '-' })
 }
 
-Protocols.register({
-	name: 'hls',
-	extension: 'm3u8'
-}, HLSProtocol);
+Protocols.register(
+	{
+		name: 'hls',
+		extension: 'm3u8'
+	},
+	HLSProtocol
+);

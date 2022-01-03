@@ -18,4 +18,15 @@ const PlaybackAction = {
 	VOLUME_MUTE: 10
 }
 
-export { PlaybackState, PlaybackAction }
+const eventHandlerProps = {
+	'buffering': 'onBuffering',
+	'canplay': 'onCanPlay',
+	'ended': 'onEnded',
+	'error': 'onError',
+	'loadstart': 'onLoadStart',
+	'pause': 'onPause',
+	'play': 'onPlay',
+	'playing': 'onPlaying',
+}
+
+export { PlaybackState, PlaybackAction, eventHandlerProps }
