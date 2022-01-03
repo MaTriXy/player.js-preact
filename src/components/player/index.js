@@ -540,4 +540,6 @@ Player.defaultProps = {
 	playlist: [DefaultPlaylistItem]
 }
 
-export { PlaybackState, PlaybackAction };
+Player.PlaybackState = PlaybackState;
+Player.PlaybackAction = PlaybackAction;
+Player.protocols = protocols;

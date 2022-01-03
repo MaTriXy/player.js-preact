@@ -154,9 +154,9 @@ If called with true, forces the current media item to be reloaded. This method i
 
 ### Using Custom Media Drivers
 
-You can define custom media drivers by importing the `Protocols` object from `@player.js/core`. Getters noted (Live) must be implemented for live playback and rewind to work, if the driver is to support it. 
+You can define custom media drivers by importing the `protocols` object from `@player.js/core`. Getters noted (Live) must be implemented for live playback and rewind to work, if the driver is to support it. 
 
-    Protocols.register(
+    protocols.register(
         {
             name: 'myprotocol',
             extension: 'm3u'
